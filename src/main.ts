@@ -13,6 +13,7 @@ interface Vector {
 interface Player {
     walls: Coordinate[];
     coord: Coordinate;
+    direction: Vector;
 }
 
 const DIR = {
@@ -29,11 +30,28 @@ class Player {
         const x = Math.floor(width / 2);
         const y = Math.floor(height / 2);
         this.coord = { x, y };
+        this.direction = DIR.RIGHT;
     }
 
-    move(dir: Vector) {
+    changeDirection(dir: Vector) {
         const x = this.coord.x + dir.vx;
         const y = this.coord.y + dir.vy;
+        const xy = { x, y };
+
+        if (this.walls.some(w => isSameCoord(w, xy))) {
+            return;
+        }
+        this.direction = dir;
+    }
+
+    turnUp() { this.changeDirection(DIR.UP); }
+    turnRight() { this.changeDirection(DIR.RIGHT); }
+    turnDown() { this.changeDirection(DIR.DOWN); }
+    turnLeft() { this.changeDirection(DIR.LEFT); }
+
+    move() {
+        const x = this.coord.x + this.direction.vx;
+        const y = this.coord.y + this.direction.vy;
         const xy = { x, y };
 
         if (this.walls.some(w => isSameCoord(w, xy))) {
@@ -42,34 +60,14 @@ class Player {
             this.coord.x = x;
             this.coord.y = y;
         }
-
     }
-
-    moveRight() { this.move(DIR.RIGHT); }
-    moveLeft() { this.move(DIR.LEFT); }
-    moveUp() { this.move(DIR.UP); }
-    moveDown() { this.move(DIR.DOWN); }
 }
 
-const WIDTH = 9;
-const HEIGHT = 9;
+const WIDTH = 28;
+const HEIGHT = 31;
 
 const walls: Coordinate[] = [
-    { x: 3, y: 2 },
-    { x: 4, y: 2 },
-    { x: 5, y: 2 },
-
-    { x: 2, y: 3 },
-    { x: 2, y: 4 },
-    { x: 2, y: 5 },
-
-    { x: 6, y: 3 },
-    // { x: 6, y: 4 },
-    { x: 6, y: 5 },
-
-    { x: 3, y: 6 },
-    { x: 4, y: 6 },
-    { x: 5, y: 6 },
+    {x: 2, y: 2}
 ];
 
 // 外枠の壁を生成
@@ -91,14 +89,12 @@ function isSameCoord(a: Coordinate, b: Coordinate): boolean {
 }
 
 function display() {
-    console.clear()
-
     let str = "";
     for (let y = 0; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH; x++) {
             const xy = { x, y };
             if (isSameCoord(player.coord, xy)) {
-                str += "〇";
+                str += "[]";
             }
             else if (walls.some(wall => isSameCoord(wall, xy))) {
                 str += "■";
@@ -110,6 +106,7 @@ function display() {
         }
         str += "\n";
     }
+    // console.clear()
     console.log(str);
     console.log(player.coord)
 }
@@ -117,18 +114,24 @@ display();
 
 
 const keyCodeMap: Record<string, Function> = {
-    ArrowRight: () => player.moveRight(),
-    ArrowLeft: () => player.moveLeft(),
-    ArrowUp: () => player.moveUp(),
-    ArrowDown: () => player.moveDown(),
+    ArrowUp: () => player.turnUp(),
+    ArrowRight: () => player.turnRight(),
+    ArrowDown: () => player.turnDown(),
+    ArrowLeft: () => player.turnLeft(),
 };
 
-const allowdKeys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"];
+const allowdKeys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "KeyW", "KeyA", "KeyS", "KeyD"];
 
 document.addEventListener("keydown", (e) => {
+    // if (e.repeat) return;
     if (!(allowdKeys.includes(e.code))) return;
 
     keyCodeMap[e.code]?.();
     display();
-    console.log(e.code)
+    console.log(e.code);
 });
+
+setInterval(() => {
+    player.move();
+    display();
+}, 100);
