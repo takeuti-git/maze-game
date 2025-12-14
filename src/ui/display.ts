@@ -6,7 +6,7 @@ import type { Player } from "../core/player.js";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-const side = 20;
+const side = 21;
 const outlineWidth = 1;
 
 canvas.width = side * (MAP[0] as number[]).length;
@@ -49,7 +49,7 @@ function drawWall(x: number, y: number) {
 }
 
 export function clearCanvas() {
-    drawRect(0, 0, canvas.width, canvas.height, "#111");
+    drawRect(0, 0, canvas.width, canvas.height, COLORS.BACKGROUND);
 }
 
 export function drawWalls() {
@@ -72,9 +72,20 @@ export function drawPlayer(player: Player) {
     const px = x * side;
     const py = y * side;
 
-    drawRect(px, py, side, side, "#FF0");
-}
+    const cx = px + Math.floor(side / 2);
+    const cy = py + Math.floor(side / 2);
 
+    const facing = dir.vx === 1 ? 0 : dir.vy === 1 ? 1 : dir.vx === -1 ? 2 : dir.vy === -1 ? 3 : 0;
+
+    ctx.fillStyle = COLORS.PLAYER;
+    for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        const angle = (0.25 + 0.5 * facing) + i * 0.25;
+        ctx.arc(cx, cy, 12, Math.PI * angle, Math.PI * (angle + 1));
+        ctx.fill();
+        ctx.closePath();
+    }
+}
 
 export function displayCLI(game: Game) {
     let str = "";
