@@ -1,12 +1,11 @@
 import { Game } from "./core/game.js";
 import { MAP } from "./constants/gamemap.js";
-import { setupKeyEvents } from "./ui/events.js";
+import { InputHandler } from "./ui/events.js";
 function main() {
     const game = new Game(MAP);
-    setupKeyEvents(game);
+    const inputHandler = new InputHandler(game);
+    game.start();
+    inputHandler.start();
     game.render();
 }
 window.addEventListener("DOMContentLoaded", main);
-// function isSameCoord(a: Coordinate, b: Coordinate): boolean {
-//     return a.x === b.x && a.y === b.y;
-// }

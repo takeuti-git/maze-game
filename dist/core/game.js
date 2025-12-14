@@ -1,30 +1,31 @@
-import { clearCanvas, displayCLI, drawWalls, drawPlayer } from "../ui/display.js";
+import { clearCanvas, drawWalls, drawPlayer } from "../ui/display.js";
 import { Player } from "./player.js";
+import { sleep } from "../util/sleep.js";
+const gameTick = 150;
 export class Game {
     constructor(map) {
         this.map = map;
         this.player = new Player(map);
-        this.tick();
+        this.isRunning = false;
     }
-    handleKey(e) {
-        const keyCodeMap = {
-            ArrowUp: () => this.player.turnUp(),
-            ArrowRight: () => this.player.turnRight(),
-            ArrowDown: () => this.player.turnDown(),
-            ArrowLeft: () => this.player.turnLeft(),
-        };
-        keyCodeMap[e.code]?.();
+    start() {
+        this.isRunning = true;
+        this.gameLoop();
+    }
+    stop() {
+        this.isRunning = false;
+    }
+    async gameLoop() {
+        if (!this.isRunning)
+            return;
+        this.player.move();
+        this.render();
+        await sleep(gameTick);
+        requestAnimationFrame(() => this.gameLoop());
     }
     render() {
-        // displayCLI(this);
         clearCanvas();
         drawWalls();
         drawPlayer(this.player);
-    }
-    tick() {
-        setInterval(() => {
-            this.player.move();
-            this.render();
-        }, 200);
     }
 }

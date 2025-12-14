@@ -17,10 +17,8 @@ export class Player {
         // 初期位置はマップの中央
         // const x = Math.floor(width / 2);
         // const y = Math.floor(height / 2);
-        this.coord = { x: 1, y: 1 };
+        this.coord = { x: this.mapWidth/ 2 - 1,  y: 23 };
         this.direction = DIR.RIGHT;
-
-        console.log()
     }
 
     willHitWall(dir: Vector): boolean {
@@ -47,6 +45,7 @@ export class Player {
         const newX = this.coord.x + dir.vx;
         const newY = this.coord.y + dir.vy;
 
+        // マップの端から端までの瞬間移動
         if (newX < 0) {
             this.coord.x = this.mapWidth - 1;
         }

@@ -65,38 +65,21 @@ export function drawWalls() {
 }
 
 export function drawPlayer(player: Player) {
-    const x = player.coord.x;
-    const y = player.coord.y;
-    const dir = player.direction;
-
-    const px = x * side;
-    const py = y * side;
+    const px = player.coord.x * side;
+    const py = player.coord.y * side;
 
     const cx = px + Math.floor(side / 2);
     const cy = py + Math.floor(side / 2);
 
-    const facing = dir.vx === 1 ? 0 : dir.vy === 1 ? 1 : dir.vx === -1 ? 2 : dir.vy === -1 ? 3 : 0;
+    const dir = player.direction;
+    const dirOffset = dir.vx === 1 ? 0 : dir.vy === 1 ? 1 : dir.vx === -1 ? 2 : dir.vy === -1 ? 3 : 0;
 
     ctx.fillStyle = COLORS.PLAYER;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
         ctx.beginPath();
-        const angle = (0.25 + 0.5 * facing) + i * 0.25;
-        ctx.arc(cx, cy, 12, Math.PI * angle, Math.PI * (angle + 1));
+        const startAngle = (0.25 + 0.5 * dirOffset) + i * 0.5;
+        ctx.arc(cx, cy, 12, Math.PI * startAngle, Math.PI * (startAngle + 1)); // 開始角度から180度進んだ地点が終了角度になる
         ctx.fill();
         ctx.closePath();
     }
-}
-
-export function displayCLI(game: Game) {
-    let str = "";
-    game.map.forEach((row, i) => {
-        row.forEach((tile, j) => {
-            if (game.player.coord.y === i && game.player.coord.x === j) str += "[]";
-            else if (tile === 1) str += "■";
-            else if (tile === 0) str += "  ";
-            // str += " ";
-        });
-        str += "\n";
-    });
-    console.log(str)
 }
