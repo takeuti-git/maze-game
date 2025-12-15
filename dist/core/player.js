@@ -10,6 +10,7 @@ export class Player {
         // const y = Math.floor(height / 2);
         this.coord = { x: this.mapWidth / 2 - 1, y: 23 };
         this.direction = DIR.RIGHT;
+        this.isMoving = false;
     }
     willHitWall(dir) {
         const x = this.coord.x + dir.vx;
@@ -26,6 +27,7 @@ export class Player {
     turnDown() { this.changeDirection(DIR.DOWN); }
     turnLeft() { this.changeDirection(DIR.LEFT); }
     move() {
+        this.isMoving = false;
         const dir = { vx: this.direction.vx, vy: this.direction.vy };
         if (this.willHitWall(dir))
             return;
@@ -42,5 +44,6 @@ export class Player {
             this.coord.x = newX;
             this.coord.y = newY;
         }
+        this.isMoving = true;
     }
 }

@@ -1,5 +1,5 @@
-import { Game } from "./core/game.js";
 import { MAP } from "./constants/gamemap.js";
+import { Game } from "./core/game.js";
 import { InputHandler } from "./ui/events.js";
 
 function main() {

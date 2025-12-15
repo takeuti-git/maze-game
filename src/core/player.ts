@@ -9,6 +9,7 @@ export class Player {
     mapHeight: number;
     coord: Coordinate;
     direction: Vector;
+    isMoving: boolean;
 
     constructor(map: Map) {
         this.map = map;
@@ -19,6 +20,7 @@ export class Player {
         // const y = Math.floor(height / 2);
         this.coord = { x: this.mapWidth/ 2 - 1,  y: 23 };
         this.direction = DIR.RIGHT;
+        this.isMoving = false;
     }
 
     willHitWall(dir: Vector): boolean {
@@ -39,6 +41,7 @@ export class Player {
     turnLeft() { this.changeDirection(DIR.LEFT); }
 
     move() {
+        this.isMoving = false;
         const dir = { vx: this.direction.vx, vy: this.direction.vy };
         if (this.willHitWall(dir)) return;
 
@@ -56,5 +59,7 @@ export class Player {
             this.coord.x = newX;
             this.coord.y = newY;
         }
+
+        this.isMoving = true;
     }
 }

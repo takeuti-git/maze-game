@@ -1,10 +1,11 @@
 import { COLORS } from "../constants/colors.js";
 import { MAP, TILE_TYPE } from "../constants/gamemap.js";
-import { Game } from "../core/game.js";
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const side = 21;
 const outlineWidth = 1;
+let playerFrame = 0;
+const FRAME_COUNT = 2;
 canvas.width = side * MAP[0].length;
 canvas.height = side * MAP.length;
 function drawRect(x, y, w, h, color) {
@@ -51,19 +52,32 @@ export function drawWalls() {
         });
     });
 }
-export function drawPlayer(player) {
-    const px = player.coord.x * side;
-    const py = player.coord.y * side;
-    const cx = px + Math.floor(side / 2);
-    const cy = py + Math.floor(side / 2);
-    const dir = player.direction;
-    const dirOffset = dir.vx === 1 ? 0 : dir.vy === 1 ? 1 : dir.vx === -1 ? 2 : dir.vy === -1 ? 3 : 0;
+export async function drawPlayer(x, y, dir, isMoving) {
+    const cx = (x * side) + Math.floor(side / 2);
+    const cy = (y * side) + Math.floor(side / 2);
+    const dirOffset = dir.vx === 1 ? 0 :
+        dir.vy === 1 ? 1 :
+            dir.vx === -1 ? 2 :
+                dir.vy === -1 ? 3 : 0;
+    const r = 12;
     ctx.fillStyle = COLORS.PLAYER;
-    for (let i = 0; i < 2; i++) {
+    function draw() {
+        const mouthOffset = (playerFrame % 2 === 0) ? -0.2 : 0;
+        const baseAngle = 0.5 * dirOffset; // 0.5増やす=90度回転する
+        const a1 = baseAngle + 0.25 + mouthOffset;
+        const a2 = baseAngle + 0.75 - mouthOffset;
         ctx.beginPath();
-        const startAngle = (0.25 + 0.5 * dirOffset) + i * 0.5;
-        ctx.arc(cx, cy, 12, Math.PI * startAngle, Math.PI * (startAngle + 1)); // 開始角度から180度進んだ地点が終了角度になる
+        ctx.arc(cx, cy, r, Math.PI * a1, Math.PI * (a1 + 1));
+        ctx.fill();
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, Math.PI * a2, Math.PI * (a2 + 1));
         ctx.fill();
         ctx.closePath();
     }
+    if (isMoving) {
+        // 移動中だけフレームを動かし、止まっている間は最後のフレームを維持したまま描写
+        playerFrame = (playerFrame + 1) % FRAME_COUNT;
+    }
+    draw();
 }

@@ -26,6 +26,8 @@ export class Game {
     render() {
         clearCanvas();
         drawWalls();
-        drawPlayer(this.player);
+        const player = this.player;
+        drawPlayer(player.coord.x, player.coord.y, player.direction, player.isMoving);
+        // drawPlayer(3, 3, player.direction, player.isMoving);
     }
 }
