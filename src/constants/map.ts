@@ -1,7 +1,8 @@
 export const TILE_TYPE = {
     FLOOR: 0,
     WALL: 1,
-};
+} as const;
+
 // #: wall
 // -: floor
 // ': food
@@ -38,7 +39,13 @@ const mapLayout = [
     "#''''''''''''''''''''''''''#",
     "############################",
 ];
-export const MAP = mapLayout.map(row => [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR));
+
+export const MAP = mapLayout.map(row =>
+    [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR)
+);
+
 export function getFoodMap() {
-    return mapLayout.map(row => [...row].map(c => c === "'" ? true : false));
+    return mapLayout.map(row =>
+        [...row].map(c => c === "'" ? true : false)
+    );
 }

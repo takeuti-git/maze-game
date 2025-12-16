@@ -1,5 +1,5 @@
 import { COLORS } from "../constants/colors.js";
-import { MAP, TILE_TYPE } from "../constants/gamemap.js";
+import { MAP, TILE_TYPE } from "../constants/map.js";
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const side = 21;
@@ -8,12 +8,18 @@ let playerFrame = 0;
 const FRAME_COUNT = 2;
 canvas.width = side * MAP[0].length;
 canvas.height = side * MAP.length;
+function getCenterPixelByCoord(n) {
+    return n * side + Math.floor(side / 2);
+}
 function drawRect(x, y, w, h, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
 }
-function drawWallOutline(px, py, w, h) {
-    drawRect(px, py, w, h, COLORS.WALL_OUTLINE);
+function drawCircle(cx, cy, r, start, end) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, start, end);
+    ctx.fill();
+    ctx.closePath();
 }
 function drawWall(x, y) {
     const px = x * side;
@@ -37,6 +43,9 @@ function drawWall(x, y) {
     if (isRightEmpty) {
         drawWallOutline(px + side - outlineWidth, py, outlineWidth, h);
     }
+}
+function drawWallOutline(px, py, w, h) {
+    drawRect(px, py, w, h, COLORS.WALL_OUTLINE);
 }
 export function clearCanvas() {
     drawRect(0, 0, canvas.width, canvas.height, COLORS.BACKGROUND);
@@ -66,18 +75,27 @@ export async function drawPlayer(x, y, dir, isMoving) {
         const baseAngle = 0.5 * dirOffset; // 0.5増やす=90度回転する
         const a1 = baseAngle + 0.25 + mouthOffset;
         const a2 = baseAngle + 0.75 - mouthOffset;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI * a1, Math.PI * (a1 + 1));
-        ctx.fill();
-        ctx.closePath();
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI * a2, Math.PI * (a2 + 1));
-        ctx.fill();
-        ctx.closePath();
+        drawCircle(cx, cy, r, Math.PI * a1, Math.PI * (a1 + 1));
+        drawCircle(cx, cy, r, Math.PI * a2, Math.PI * (a2 + 1));
     }
     if (isMoving) {
         // 移動中だけフレームを動かし、止まっている間は最後のフレームを維持したまま描写
         playerFrame = (playerFrame + 1) % FRAME_COUNT;
     }
     draw();
+}
+export function drawFoods(foods) {
+    ctx.fillStyle = COLORS.FOOD;
+    const height = foods.length;
+    const width = foods[0]?.length;
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            if (!foods[y]?.[x])
+                continue;
+            const cx = getCenterPixelByCoord(x);
+            const cy = getCenterPixelByCoord(y);
+            const r = 3;
+            drawCircle(cx, cy, r, 0, Math.PI * 2);
+        }
+    }
 }

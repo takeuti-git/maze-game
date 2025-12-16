@@ -1,25 +1,26 @@
 import type { Coordinate, Vector } from "../types/coordinate";
-import type { Map } from "../types/gamemap";
+import type { Foods, Map } from "../types/map";
 import { DIR } from "../constants/dir.js";
-import { TILE_TYPE } from "../constants/gamemap.js";
+import { TILE_TYPE } from "../constants/map.js";
 
 export class Player {
     map: Map;
+    foods: Foods
     mapWidth: number;
     mapHeight: number;
     coord: Coordinate;
     direction: Vector;
     isMoving: boolean;
 
-    constructor(map: Map) {
+    constructor(map: Map, foods: Foods) {
         this.map = map;
+        this.foods = foods;
+
         this.mapWidth = this.map[0]?.length as number;
         this.mapHeight = this.map.length;
-        // 初期位置はマップの中央
-        // const x = Math.floor(width / 2);
-        // const y = Math.floor(height / 2);
-        this.coord = { x: this.mapWidth/ 2 - 1,  y: 23 };
-        this.direction = DIR.RIGHT;
+
+        this.coord = { x: this.mapWidth / 2 - 1, y: 23 };
+        this.direction = DIR.RIGHT; // 初期は右向きに進む
         this.isMoving = false;
     }
 
@@ -41,12 +42,19 @@ export class Player {
     turnLeft() { this.changeDirection(DIR.LEFT); }
 
     move() {
-        this.isMoving = false;
         const dir = { vx: this.direction.vx, vy: this.direction.vy };
+        this.isMoving = false;
         if (this.willHitWall(dir)) return;
+        this.isMoving = true;
 
         const newX = this.coord.x + dir.vx;
         const newY = this.coord.y + dir.vy;
+
+        // 食べ物判定
+        if (this.foods[newY]?.[newX]) {
+            this.foods[newY][newX] = false;
+            this.eat()
+        }
 
         // マップの端から端までの瞬間移動
         if (newX < 0) {
@@ -60,6 +68,19 @@ export class Player {
             this.coord.y = newY;
         }
 
-        this.isMoving = true;
+    }
+
+    eat() {
+        console.log("eating")
+    }
+
+    hasEatenUp(): boolean {
+        // 配列中に1つでも食べ物(true)が残っていればfalseを返す
+        if (this.foods.some(row => row.some(Boolean))) return false;
+        else return true;
+    }
+
+    die() {
+        
     }
 }

@@ -8,7 +8,7 @@ const ALLOWED_KEYS = {
 export class InputHandler {
     constructor(game) {
         this.game = game;
-        this.keyStates = new Map();
+        this.keyStates = new Set();
         this.isRunning = false;
         this.setupListeners();
     }
@@ -20,10 +20,7 @@ export class InputHandler {
             // リピート防止
             if (this.keyStates.has(key))
                 return;
-            this.keyStates.set(key, {
-            // isPressed: true,
-            // startTime: performance.now(),
-            });
+            this.keyStates.add(key);
         });
         document.addEventListener("keyup", (e) => {
             const key = e.code;

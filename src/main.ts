@@ -1,9 +1,8 @@
-import { MAP } from "./constants/gamemap.js";
 import { Game } from "./core/game.js";
 import { InputHandler } from "./ui/events.js";
 
 function main() {
-    const game = new Game(MAP);
+    const game = new Game();
     const inputHandler = new InputHandler(game);
 
     game.start();

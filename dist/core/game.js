@@ -1,11 +1,13 @@
-import { clearCanvas, drawWalls, drawPlayer } from "../ui/display.js";
+import { clearCanvas, drawWalls, drawPlayer, drawFoods } from "../ui/display.js";
 import { Player } from "./player.js";
 import { sleep } from "../util/sleep.js";
+import { getFoodMap, MAP } from "../constants/map.js";
 const gameTick = 150;
 export class Game {
-    constructor(map) {
-        this.map = map;
-        this.player = new Player(map);
+    constructor() {
+        this.map = MAP;
+        this.foods = getFoodMap();
+        this.player = new Player(MAP, this.foods);
         this.isRunning = false;
     }
     start() {
@@ -14,12 +16,16 @@ export class Game {
     }
     stop() {
         this.isRunning = false;
+        console.log("stopped");
     }
     async gameLoop() {
         if (!this.isRunning)
             return;
         this.player.move();
         this.render();
+        if (this.player.hasEatenUp()) {
+            this.stop();
+        }
         await sleep(gameTick);
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -28,6 +34,6 @@ export class Game {
         drawWalls();
         const player = this.player;
         drawPlayer(player.coord.x, player.coord.y, player.direction, player.isMoving);
-        // drawPlayer(3, 3, player.direction, player.isMoving);
+        drawFoods(this.foods);
     }
 }

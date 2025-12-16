@@ -7,19 +7,14 @@ const ALLOWED_KEYS = {
     LEFT: "ArrowLeft",
 };
 
-type KeyState = {
-    // isPressed: boolean;
-    // startTime: number;
-};
-
 export class InputHandler {
     game: Game;
-    keyStates: Map<string, KeyState>;
+    keyStates: Set<string>;
     isRunning: boolean;
 
     constructor(game: Game) {
         this.game = game;
-        this.keyStates = new Map();
+        this.keyStates = new Set();
         this.isRunning = false;
 
         this.setupListeners();
@@ -33,10 +28,7 @@ export class InputHandler {
             // リピート防止
             if (this.keyStates.has(key)) return;
 
-            this.keyStates.set(key, {
-                // isPressed: true,
-                // startTime: performance.now(),
-            });
+            this.keyStates.add(key);
         });
 
         document.addEventListener("keyup", (e) => {

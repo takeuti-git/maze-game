@@ -1,6 +1,7 @@
 import { COLORS } from "../constants/colors.js";
-import { MAP, TILE_TYPE } from "../constants/gamemap.js";
-import type { Vector } from "../types/coordinate.js";
+import { MAP, TILE_TYPE } from "../constants/map.js";
+import type { Vector } from "../types/coordinate";
+import type { Foods } from "../types/map";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -14,14 +15,21 @@ const FRAME_COUNT = 2;
 canvas.width = side * (MAP[0] as number[]).length;
 canvas.height = side * MAP.length;
 
+
+function getCenterPixelByCoord(n: number): number {
+    return n * side + Math.floor(side / 2);
+}
+
 function drawRect(x: number, y: number, w: number, h: number, color: string) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
 }
 
-
-function drawWallOutline(px: number, py: number, w: number, h: number) {
-    drawRect(px, py, w, h, COLORS.WALL_OUTLINE);
+function drawCircle(cx: number, cy: number, r: number, start: number, end: number) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, start, end);
+    ctx.fill();
+    ctx.closePath();
 }
 
 function drawWall(x: number, y: number) {
@@ -48,6 +56,10 @@ function drawWall(x: number, y: number) {
     if (isRightEmpty) {
         drawWallOutline(px + side - outlineWidth, py, outlineWidth, h);
     }
+}
+
+function drawWallOutline(px: number, py: number, w: number, h: number) {
+    drawRect(px, py, w, h, COLORS.WALL_OUTLINE);
 }
 
 export function clearCanvas() {
@@ -86,15 +98,8 @@ export async function drawPlayer(x: number, y: number, dir: Vector, isMoving: bo
         const a1 = baseAngle + 0.25 + mouthOffset;
         const a2 = baseAngle + 0.75 - mouthOffset;
 
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI * a1, Math.PI * (a1 + 1));
-        ctx.fill();
-        ctx.closePath();
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI * a2, Math.PI * (a2 + 1));
-        ctx.fill();
-        ctx.closePath();
+        drawCircle(cx, cy, r, Math.PI * a1, Math.PI * (a1 + 1));
+        drawCircle(cx, cy, r, Math.PI * a2, Math.PI * (a2 + 1));
     }
 
     if (isMoving) {
@@ -102,4 +107,22 @@ export async function drawPlayer(x: number, y: number, dir: Vector, isMoving: bo
         playerFrame = (playerFrame + 1) % FRAME_COUNT;
     }
     draw();
+}
+
+export function drawFoods(foods: Foods) {
+    ctx.fillStyle = COLORS.FOOD;
+
+    const height = foods.length;
+    const width = foods[0]?.length as number;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            if (!foods[y]?.[x]) continue;
+
+            const cx = getCenterPixelByCoord(x);
+            const cy = getCenterPixelByCoord(y);
+            const r = 3;
+            drawCircle(cx, cy, r, 0, Math.PI * 2);
+        }
+    }
 }
