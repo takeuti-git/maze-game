@@ -1,30 +1,34 @@
 import type { Coordinate, Vector } from "../types/coordinate";
 
 import type { Map } from "./map.js";
-import { Dir, DIR_VECTOR } from "../constants/dir.js";
+import { Dir } from "../constants/dir.js";
 
 export abstract class Entity {
-    protected map: Map;
-    coord: Coordinate;
-    direction: Dir;
+    protected readonly map: Map;
+    protected coord: Coordinate;
+    protected direction: Dir;
 
-    constructor(map: Map) {
+    constructor(map: Map, start: Coordinate, dir: Dir) {
         this.map = map;
-        this.coord = { x: 0, y: 0 };
-        this.direction = Dir.UP; // 初期方向は上
+        this.coord = start;
+        this.direction = dir;
     }
 
-    get directionVector(): Vector {
-        return DIR_VECTOR[this.direction];
+    get position(): Coordinate {
+        return { ...this.coord };
     }
 
-    willHitWallAt(next: Coordinate): boolean {
+    get dir(): Dir {
+        return this.direction;
+    }
+
+    protected willHitWallAt(next: Coordinate): boolean {
         return this.map.isWall(next);
     }
 
-    move(): void { }
+    protected abstract move(): void;
 
-    wrapCoord(): void {
+    protected wrapMovement(): void {
         // マップの端から端までの瞬間移動
         const minXY = 0
         const maxX = this.map.width - 1;

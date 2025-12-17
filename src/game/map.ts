@@ -4,9 +4,9 @@ import type { Coordinate } from "../types/coordinate";
 import type { StaticMapData } from "./types";
 
 export class Map {
-    readonly data: StaticMapData;
-    readonly width: number;
-    readonly height: number;
+    public readonly data: StaticMapData;
+    public readonly width: number;
+    public readonly height: number;
 
     constructor(data: StaticMapData) {
         this.data = data;

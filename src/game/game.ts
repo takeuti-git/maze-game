@@ -1,70 +1,71 @@
-import { drawEnemy, drawPlayer, drawStaticObjects, drawTarget, initRenderer } from "../ui/render.js";
-import { sleep } from "../util/sleep.js";
-import { getFoodMap, MAP_DATA } from "./mapData.js";
-
-import { Enemy } from "./enemy.js";
 import { Player } from "./player.js";
-import { isSameCoord } from "./coord.js";
+import { Enemy } from "./enemy.js";
 import { Map } from "./map.js";
 import { Foods } from "./foods.js";
+import { Renderer } from "../ui/render.js";
 
-const gameTick = 150;
+import { isSameCoord } from "./coord.js";
+import { sleep } from "../util/sleep.js";
+import { getFoodMap, MAP_DATA } from "./mapData.js";
+import type { Dir } from "../constants/dir";
+
+const GAME_TICK = 150;
 
 export class Game {
-    map: Map
-    player: Player
-    enemy: Enemy
-    isRunning: boolean
-    foods: Foods
+    private readonly map: Map;
+    private readonly player: Player;
+    private readonly enemy: Enemy;
+    private readonly foods: Foods;
+    private readonly renderer: Renderer;
+    private isRunning: boolean;
+    private tickCount: number;
+    private tickInterval: number;
 
-    tickCount: number;
-    tickInterval: number;
     constructor(canvas: HTMLCanvasElement) {
         this.map = new Map(MAP_DATA);
         this.foods = new Foods(getFoodMap());
         this.player = new Player(this.map, this.foods);
         this.enemy = new Enemy(this.map);
+        this.renderer = new Renderer(canvas, this.map);
 
         this.isRunning = false;
 
         this.tickCount = 0;
         this.tickInterval = 30;
-
-        initRenderer(canvas, this.map);
     }
 
-    start() {
+    public start() {
         this.isRunning = true;
         this.gameLoop();
     }
 
-    stop() {
+    public stop() {
         this.isRunning = false;
         console.log("stopped")
     }
 
-    async gameLoop() {
+    public requestPlayerTurn(dir: Dir) {
+        this.player.tryChangeDirection(dir);
+    }
+
+    private async gameLoop() {
         if (!this.isRunning) return;
 
         this.tickCount = (this.tickCount + 1) % this.tickInterval;
         if (this.tickCount === 0) {
             const rng = 1 + Math.floor(Math.random() * 30);
             this.tickInterval = rng;
-            this.enemy.newTarget = this.player.coord;
+            this.enemy.setTarget(this.player.position);
             console.log("target updated")
         }
-
-        // if (isSameCoord(this.enemy.coord, this.enemy.target)) {
-        //     this.enemy.newTarget = this.player.coord;
-        // }
 
         this.player.move();
         this.enemy.move();
         this.render();
 
-        drawTarget(this.enemy.target); // debug
+        this.renderer.drawTargetPosition(this.enemy.target); // debug
 
-        if (isSameCoord(this.player.coord, this.enemy.coord)) {
+        if (isSameCoord(this.player.position, this.enemy.position)) {
             this.player.die();
             this.stop();
         }
@@ -73,16 +74,13 @@ export class Game {
             this.stop();
         }
 
-        await sleep(gameTick);
+        await sleep(GAME_TICK);
         requestAnimationFrame(() => this.gameLoop());
     }
 
-    render() {
-        drawStaticObjects(this.map, this.foods);
-
-        const player = this.player;
-        const enemy = this.enemy;
-        drawPlayer(player.coord.x, player.coord.y, player.direction, player.isMoving);
-        drawEnemy(enemy.coord.x, enemy.coord.y, enemy.direction);
+    public render() {
+        this.renderer.drawWorld(this.map, this.foods);
+        this.renderer.drawPlayer(this.player.position, this.player.dir, this.player.isMoving);
+        this.renderer.drawEnemy(this.enemy.position);
     }
 }

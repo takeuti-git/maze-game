@@ -9,21 +9,22 @@ function getRandomDir(): Dir {
 };
 
 export class Enemy extends Entity {
-    target: Coordinate;
+    private _target: Coordinate;
 
     constructor(map: Map) {
-        super(map);
-        this.map = map;
-        this.coord = { x: 6, y: 9 };
-        this.direction = getRandomDir();
-        this.target = { x: 1, y: 1 };
+        super(map, { x: 6, y: 9 }, getRandomDir());
+        this._target = { x: 1, y: 1 };
     }
 
-    set newTarget(coord: Coordinate) {
-        this.target = { x: coord.x, y: coord.y };
+    get target(): Coordinate {
+        return { ...this._target };
     }
 
-    getDirCandidates(): Dir[] {
+    setTarget(coord: Coordinate) {
+        this._target = { ...coord };
+    }
+
+    private getDirCandidates(): Dir[] {
         // 4方向のベクトルを持つDIRから、進行可能な方向だけ残す
         return ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
@@ -32,7 +33,7 @@ export class Enemy extends Entity {
         }) || [OPPOSITE_DIR[this.direction]]; // 行き止まりで候補がなくなったら逆走を許す
     }
 
-    changeDirection() {
+    private chooseDirection() {
         const candidates = this.getDirCandidates();
 
         let bestDir = candidates[0];
@@ -53,11 +54,9 @@ export class Enemy extends Entity {
     }
 
     move() {
-        // if (this.willHitWall(this.direction)) {
-        this.changeDirection();
-        // }
+        this.chooseDirection();
 
         this.coord = nextCoordFrom(this.coord, DIR_VECTOR[this.direction]);
-        this.wrapCoord();
+        this.wrapMovement();
     }
 }
