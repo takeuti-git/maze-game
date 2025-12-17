@@ -1,7 +1,6 @@
-import type { Coordinate, Vector } from "../types/coordinate";
-
-import type { Map } from "./map.js";
-import { Dir } from "../constants/dir.js";
+import type { Coordinate } from "../../types/coordinate";
+import type { Map } from "../map.js";
+import { Dir } from "../../constants/dir.js";
 
 export abstract class Entity {
     protected readonly map: Map;

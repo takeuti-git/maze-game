@@ -1,8 +1,8 @@
-import type { Foods } from "./foods";
-import type { Map } from "./map";
+import type { Foods } from "../foods";
+import type { Map } from "../map";
 import { Entity } from "./entity.js";
-import { Dir, DIR_VECTOR } from "../constants/dir.js";
-import { nextCoordFrom } from "./coord.js";
+import { Dir, DIR_VECTOR } from "../../constants/dir.js";
+import { nextCoordFrom } from "../coord.js";
 
 export class Player extends Entity {
     private moving = false;

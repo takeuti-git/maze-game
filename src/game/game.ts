@@ -1,5 +1,4 @@
-import { Player } from "./player.js";
-import { Enemy } from "./enemy.js";
+import { Player, Enemy } from "./entity/index.js";
 import { Map } from "./map.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
