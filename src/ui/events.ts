@@ -1,11 +1,5 @@
-import { Game } from "../core/game.js";
-
-const ALLOWED_KEYS = {
-    UP: "ArrowUp",
-    DOWN: "ArrowDown",
-    RIGHT: "ArrowRight",
-    LEFT: "ArrowLeft",
-};
+import type { Game } from "../game/game.js";
+import { KEY_TO_DIR } from "../constants/keymap.js";
 
 export class InputHandler {
     game: Game;
@@ -37,23 +31,6 @@ export class InputHandler {
         });
     }
 
-    // handleKeyDown(key: string) {
-    //     switch (key) {
-    //         case "ArrowUp":
-    //             this.game.executeCommand("TURN_UP");
-    //             break;
-    //         case "ArrowDown":
-    //             this.game.executeCommand("TURN_DOWN");
-    //             break;
-    //         case "ArrowRight":
-    //             this.game.executeCommand("TURN_RIGHT");
-    //             break;
-    //         case "ArrowLeft":
-    //             this.game.executeCommand("TURN_LEFT");
-    //             break;
-    //     }
-    // }
-
     start() {
         this.isRunning = true;
         this.inputLoop();
@@ -70,17 +47,12 @@ export class InputHandler {
     }
 
     updateGameActions() {
-        if (this.keyStates.has(ALLOWED_KEYS.UP)) {
-            this.game.player.turnUp();
-        }
-        else if (this.keyStates.has(ALLOWED_KEYS.DOWN)) {
-            this.game.player.turnDown();
-        }
-        else if (this.keyStates.has(ALLOWED_KEYS.RIGHT)) {
-            this.game.player.turnRight();
-        }
-        else if (this.keyStates.has(ALLOWED_KEYS.LEFT)) {
-            this.game.player.turnLeft();
+        for (const key of this.keyStates) {
+            const dir = KEY_TO_DIR[key];
+            if (dir !== undefined) {
+                this.game.player.tryChangeDirection(dir);
+                break;
+            }
         }
     }
 }
