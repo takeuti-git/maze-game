@@ -1,22 +1,22 @@
-import type { Coordinate } from "../../types/coordinate";
+import type { Coordinate } from "../../types/coordinate.js";
+import type { Map } from "../map.js";
 import { Entity } from "./entity.js";
 import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../constants/dir.js";
 import { nextCoordFrom } from "../coord.js";
-import type { Map } from "../map";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
 };
 
-export class Enemy extends Entity {
-    private _target: Coordinate;
+export abstract class Enemy extends Entity {
+    protected _target: Coordinate;
 
-    constructor(map: Map) {
-        super(map, { x: 6, y: 9 }, getRandomDir());
-        this._target = { x: 1, y: 1 };
+    constructor(start: Coordinate, map: Map) {
+        super(map, start, getRandomDir());
+        this._target = { x: 0, y: 0 };
     }
 
-    get target(): Coordinate {
+    get target() {
         return { ...this._target };
     }
 
@@ -24,38 +24,18 @@ export class Enemy extends Entity {
         this._target = { ...coord };
     }
 
-    private getDirCandidates(): Dir[] {
-        // 4方向のベクトルを持つDIRから、進行可能な方向だけ残す
+    protected getDirCandidates(): Dir[] {
         return ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
             const vec = DIR_VECTOR[dir];
             return !this.willHitWallAt(nextCoordFrom(this.coord, vec));
-        }) || [OPPOSITE_DIR[this.direction]]; // 行き止まりで候補がなくなったら逆走を許す
+        }) || [OPPOSITE_DIR[this.direction]]; // 行き止まりなら逆走を許す
     }
 
-    private chooseDirection() {
-        const candidates = this.getDirCandidates();
+    protected abstract chooseDirection(): void;
 
-        let bestDir = candidates[0];
-        let minDist = Infinity;
-
-        for (const dir of candidates) {
-            const next = nextCoordFrom(this.coord, DIR_VECTOR[dir]);
-            const dx = next.x - this.target.x;
-            const dy = next.y - this.target.y;
-            const dist = dx * dx + dy * dy;
-
-            if (dist < minDist) {
-                minDist = dist;
-                bestDir = dir;
-            }
-        }
-        this.direction = bestDir as Dir;
-    }
-
-    move() {
+    public move() {
         this.chooseDirection();
-
         this.coord = nextCoordFrom(this.coord, DIR_VECTOR[this.direction]);
         this.wrapMovement();
     }

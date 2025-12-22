@@ -1,5 +1,6 @@
 import type { Foods } from "../foods";
 import type { Map } from "../map";
+import type { Coordinate } from "../../types/coordinate";
 import { Entity } from "./entity.js";
 import { Dir, DIR_VECTOR } from "../../constants/dir.js";
 import { nextCoordFrom } from "../coord.js";
@@ -8,8 +9,8 @@ export class Player extends Entity {
     private moving = false;
     private readonly foods: Foods;
 
-    constructor(map: Map, foods: Foods) {
-        super(map, { x: 13, y: 17 }, Dir.UP)
+    constructor(start: Coordinate, map: Map, foods: Foods) {
+        super(map, start, Dir.UP)
         this.foods = foods;
     }
 
