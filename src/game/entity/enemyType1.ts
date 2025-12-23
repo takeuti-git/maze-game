@@ -1,18 +1,18 @@
-import { DIR_VECTOR } from "../../constants/dir.js";
 import type { Coordinate } from "../../types/coordinate.js";
-import { nextCoordFrom } from "../coord.js";
 import type { Map } from "../map.js";
+import { Dir, DIR_VECTOR } from "../../constants/dir.js";
+import { nextCoordFrom } from "../coord.js";
 import { Enemy } from "./enemy.js";
 
 export class EnemyType1 extends Enemy {
-    constructor(start: Coordinate, map: Map) {
-        super(start, map);
+    constructor(map: Map, start: Coordinate) {
+        super(map, start);
     }
 
-    protected chooseDirection() {
+    protected chooseDirection(): Dir {
         const candidates = this.getDirCandidates();
 
-        let bestDir = candidates[0];
+        let bestDir = candidates[0] as Dir;
         let minDist = Infinity;
 
         for (const dir of candidates) {
@@ -26,7 +26,6 @@ export class EnemyType1 extends Enemy {
                 bestDir = dir;
             }
         }
-
-        if (bestDir) this.direction = bestDir;
-    } 
+        return bestDir
+    }
 }

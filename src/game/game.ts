@@ -1,4 +1,5 @@
-import { Player, Enemy, EnemyType1 } from "./entity/index.js";
+import type { Enemy } from "./entity/index.js";
+import { Player, EnemyType1 } from "./entity/index.js";
 import { Map } from "./map.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
@@ -24,9 +25,9 @@ export class Game {
         this.map = new Map(MAP_DATA);
         this.foods = new Foods(getFoodMap());
         this.player = new Player({ x: 10, y: 11 }, this.map, this.foods);
-        const enemy1 = new EnemyType1({x: 20, y: 1}, this.map);
-        const enemy2 = new EnemyType1({x: 1, y: 30}, this.map);
-        this.enemies = [enemy1, enemy2];
+        const enemy1 = new EnemyType1(this.map, { x: 20, y: 1 });
+        const enemy2 = new EnemyType1(this.map, { x: 1, y: 20 });
+        this.enemies = [enemy1, ];
         this.renderer = new Renderer(canvas, this.map);
 
         this.isRunning = false;
@@ -57,7 +58,7 @@ export class Game {
             const rng = 1 + Math.floor(Math.random() * 30);
             this.tickInterval = rng;
             this.enemies.forEach(e => e.setTarget(this.player.position));
-            console.log("target updated")
+            console.log("target updated");
         }
 
         this.player.move();
@@ -84,7 +85,6 @@ export class Game {
     public render() {
         this.renderer.drawWorld(this.map, this.foods);
         this.renderer.drawPlayer(this.player.position, this.player.dir, this.player.isMoving);
-        // this.renderer.drawEnemy(this.enemy.position);
         this.enemies.forEach(e => this.renderer.drawEnemy(e.position));
     }
 }

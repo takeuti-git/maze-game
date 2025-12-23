@@ -11,7 +11,7 @@ function getRandomDir(): Dir {
 export abstract class Enemy extends Entity {
     protected _target: Coordinate;
 
-    constructor(start: Coordinate, map: Map) {
+    constructor(map: Map, start: Coordinate) {
         super(map, start, getRandomDir());
         this._target = { x: 0, y: 0 };
     }
@@ -25,17 +25,24 @@ export abstract class Enemy extends Entity {
     }
 
     protected getDirCandidates(): Dir[] {
-        return ALL_DIRS.filter(dir => {
+        // 壁に当たらず進行方向と逆以外のDIR配列を返す
+        const filtered = ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
-            const vec = DIR_VECTOR[dir];
-            return !this.willHitWallAt(nextCoordFrom(this.coord, vec));
-        }) || [OPPOSITE_DIR[this.direction]]; // 行き止まりなら逆走を許す
+            return !this.willHitWallAt(nextCoordFrom(this.coord, DIR_VECTOR[dir]));
+        });
+
+        if (filtered.length > 0) {
+            return filtered;
+        }
+        else {
+            return [OPPOSITE_DIR[this.direction]]; // 行き止まりなら逆走を許す
+        } 
     }
 
-    protected abstract chooseDirection(): void;
+    protected abstract chooseDirection(): Dir;
 
     public move() {
-        this.chooseDirection();
+        this.direction = this.chooseDirection();
         this.coord = nextCoordFrom(this.coord, DIR_VECTOR[this.direction]);
         this.wrapMovement();
     }
