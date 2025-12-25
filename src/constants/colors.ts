@@ -7,5 +7,6 @@ export const COLORS = {
     ONEWAY: "#FAA",
     ENEMY_1: "#F00",
     ENEMY_2: "#FAA",
+    ENEMY_3: "#0FF",
     _DEBUG_TARGET: "#FFF",
 } as const;

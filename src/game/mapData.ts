@@ -3,7 +3,7 @@ import { TILE_TYPE } from "../constants/tile.js";
 // #: wall
 // -: floor
 // ': food
-// __: one-way
+// _: one-way
 const mapLayout = [
     "############################",
     "#''''''''''''##''''''''''''#",

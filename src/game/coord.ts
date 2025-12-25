@@ -8,6 +8,6 @@ export function isSameVector(a: Vector, b: Vector): boolean {
     return a.vx === b.vx && a.vy === b.vy;
 }
 
-export function nextCoordFrom(coord: Coordinate, dir: Vector): Coordinate {
+export function calcCoordFromVector(coord: Coordinate, dir: Vector): Coordinate {
     return { x: coord.x + dir.vx, y: coord.y + dir.vy };
 }

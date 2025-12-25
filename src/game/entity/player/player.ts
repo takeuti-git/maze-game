@@ -3,7 +3,7 @@ import type { Map } from "../../map";
 import type { Coordinate } from "../../../types/coordinate";
 import { Entity } from "../entity.js";
 import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
-import { nextCoordFrom } from "../../coord.js";
+import { calcCoordFromVector } from "../../coord.js";
 
 export class Player extends Entity {
     private moving = false;
@@ -19,7 +19,7 @@ export class Player extends Entity {
     }
 
     tryChangeDirection(dir: Dir) {
-        const next = nextCoordFrom(this.coord, DIR_VECTOR[dir]);
+        const next = calcCoordFromVector(this.coord, DIR_VECTOR[dir]);
         if (this.willHitWall(this.coord, next)) return;
         this.direction = dir;
     }
@@ -31,7 +31,7 @@ export class Player extends Entity {
 
     move() {
         const vec = DIR_VECTOR[this.direction];
-        const next = nextCoordFrom(this.coord, vec);
+        const next = calcCoordFromVector(this.coord, vec);
         if (this.willHitWall(this.coord, next)) {
             this.moving = false;
             return;
