@@ -1,8 +1,8 @@
-import type { Coordinate } from "../../types/coordinate.js";
-import type { Map } from "../map.js";
-import { Entity } from "./entity.js";
-import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../constants/dir.js";
-import { nextCoordFrom } from "../coord.js";
+import type { Coordinate } from "../../../types/coordinate.js";
+import type { Map } from "../../map.js";
+import { Entity } from "../entity.js";
+import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
+import { nextCoordFrom } from "../../coord.js";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;

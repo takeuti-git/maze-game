@@ -1,7 +1,7 @@
-import type { Coordinate } from "../../types/coordinate.js";
-import type { Map } from "../map.js";
-import { Dir, DIR_VECTOR } from "../../constants/dir.js";
-import { nextCoordFrom } from "../coord.js";
+import type { Coordinate } from "../../../types/coordinate.js";
+import type { Map } from "../../map.js";
+import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
+import { nextCoordFrom } from "../../coord.js";
 import { Enemy } from "./enemy.js";
 
 export class EnemyType1 extends Enemy {
@@ -26,6 +26,6 @@ export class EnemyType1 extends Enemy {
                 bestDir = dir;
             }
         }
-        return bestDir
+        return bestDir;
     }
 }

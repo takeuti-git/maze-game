@@ -27,7 +27,7 @@ export class Game {
         this.player = new Player({ x: 10, y: 11 }, this.map, this.foods);
         const enemy1 = new EnemyType1(this.map, { x: 20, y: 1 });
         const enemy2 = new EnemyType1(this.map, { x: 1, y: 20 });
-        this.enemies = [enemy1, ];
+        this.enemies = [enemy1, enemy2];
         this.renderer = new Renderer(canvas, this.map);
 
         this.isRunning = false;

@@ -1,9 +1,9 @@
-import type { Foods } from "../foods";
-import type { Map } from "../map";
-import type { Coordinate } from "../../types/coordinate";
-import { Entity } from "./entity.js";
-import { Dir, DIR_VECTOR } from "../../constants/dir.js";
-import { nextCoordFrom } from "../coord.js";
+import type { Foods } from "../../foods";
+import type { Map } from "../../map";
+import type { Coordinate } from "../../../types/coordinate";
+import { Entity } from "../entity.js";
+import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
+import { nextCoordFrom } from "../../coord.js";
 
 export class Player extends Entity {
     private moving = false;
