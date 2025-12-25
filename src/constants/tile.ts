@@ -1,4 +1,5 @@
 export enum TILE_TYPE {
-    FLOOR = 1,
     WALL = 0,
+    FLOOR = 1,
+    ONEWAY = 2,
 }

@@ -26,8 +26,8 @@ export abstract class Entity {
         return this.direction;
     }
 
-    protected willHitWallAt(next: Coordinate): boolean {
-        return this.map.isWall(next);
+    protected willHitWall(current: Coordinate, next: Coordinate): boolean {
+        return !this.map.canMove(current, next);
     }
 
     protected abstract move(): void;

@@ -3,6 +3,7 @@ import { TILE_TYPE } from "../constants/tile.js";
 // #: wall
 // -: floor
 // ': food
+// __: one-way
 const mapLayout = [
     "############################",
     "#''''''''''''##''''''''''''#",
@@ -16,7 +17,7 @@ const mapLayout = [
     "######'#####-##-#####'######",
     "-----#'#####-##-#####'#-----",
     "-----#'##----------##'#-----",
-    "-----#'##-########-##'#-----",
+    "-----#'##-###__###-##'#-----",
     "######'##-#------#-##'######",
     "------'---#------#---'------",
     "######'##-#------#-##'######",
@@ -79,8 +80,23 @@ const mapLayout = [
 //     "###################",
 // ];
 
+// export const MAP_DATA = mapLayout.map(row =>
+//     [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR)
+// );
 export const MAP_DATA = mapLayout.map(row =>
-    [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR)
+    [...row].map(c => {
+        switch (c) {
+            case "#":
+                return TILE_TYPE.WALL;
+            case "-":
+            case "'":
+                return TILE_TYPE.FLOOR;
+            case "_":
+                return TILE_TYPE.ONEWAY;
+            default:
+                return TILE_TYPE.FLOOR;
+        }
+    })
 );
 
 export function getFoodMap() {

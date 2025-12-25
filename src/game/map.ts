@@ -31,4 +31,17 @@ export class Map {
     isWall(coord: Coordinate): boolean {
         return this.getTile(coord) === TILE_TYPE.WALL;
     }
+
+    canMove(from: Coordinate, to: Coordinate): boolean {
+        if (this.isWall(to)) return false;
+
+        if (this.getTile(to) === TILE_TYPE.FLOOR) return true;
+
+        if (this.getTile(to) === TILE_TYPE.ONEWAY) {
+            if (from.y < to.y) return false;
+            else return true;
+        }
+
+        return true; // fallback
+    }
 }

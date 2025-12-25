@@ -20,7 +20,7 @@ export class Player extends Entity {
 
     tryChangeDirection(dir: Dir) {
         const next = nextCoordFrom(this.coord, DIR_VECTOR[dir]);
-        if (this.willHitWallAt(next)) return;
+        if (this.willHitWall(this.coord, next)) return;
         this.direction = dir;
     }
 
@@ -32,7 +32,7 @@ export class Player extends Entity {
     move() {
         const vec = DIR_VECTOR[this.direction];
         const next = nextCoordFrom(this.coord, vec);
-        if (this.willHitWallAt(next)) {
+        if (this.willHitWall(this.coord, next)) {
             this.moving = false;
             return;
         }
@@ -47,7 +47,7 @@ export class Player extends Entity {
     }
 
     private onEat() {
-        console.log("eating");
+        // console.log("eating");
     }
 
     die() {

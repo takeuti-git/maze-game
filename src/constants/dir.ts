@@ -21,9 +21,13 @@ export const OPPOSITE_DIR: Record<Dir, Dir> = {
     [Dir.LEFT]: Dir.RIGHT,
 }
 
+/** 
+ * 方向決定の優先順位  
+ * 上 > 左 > 下 > 右 
+ */
 export const ALL_DIRS: readonly Dir[] = [
     Dir.UP,
-    Dir.RIGHT,
-    Dir.DOWN,
     Dir.LEFT,
+    Dir.DOWN,
+    Dir.RIGHT,
 ] as const;

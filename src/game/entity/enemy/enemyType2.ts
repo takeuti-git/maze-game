@@ -4,15 +4,18 @@ import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
 import { nextCoordFrom } from "../../coord.js";
 import { Enemy } from "./enemy.js";
 
-export class EnemyType1 extends Enemy {
+export class EnemyType2 extends Enemy {
     constructor(map: Map) {
-        const start = { x: 13, y: 14 };
+        const start = { x: 13, y: 15 };
         super(map, start);
-        this._target = { x: map.width - 1, y: -1 };
+        this._target = { x: 1, y: -1 };
     }
 
-    public setTarget(coord: Coordinate) {
-        this._target = { x: coord.x, y: coord.y };
+    public setTarget(coord: Coordinate, dir: Dir) {
+        const vec = DIR_VECTOR[dir];
+        const offsetX = vec.vx * 4;
+        const offsetY = vec.vy * 4;
+        this._target = { x: coord.x + offsetX, y: coord.y + offsetY };
     }
 
     protected chooseDirection(): Dir {

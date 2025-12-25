@@ -12,7 +12,7 @@ export abstract class Enemy extends Entity {
     protected _target: Coordinate;
 
     constructor(map: Map, start: Coordinate) {
-        super(map, start, getRandomDir());
+        super(map, start, Dir.UP);
         this._target = { x: 0, y: 0 };
     }
 
@@ -20,23 +20,21 @@ export abstract class Enemy extends Entity {
         return { ...this._target };
     }
 
-    setTarget(coord: Coordinate) {
-        this._target = { ...coord };
-    }
+    public abstract setTarget(coord: Coordinate, dir: Dir): void;
 
     protected getDirCandidates(): Dir[] {
         // 壁に当たらず進行方向と逆以外のDIR配列を返す
         const filtered = ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
-            return !this.willHitWallAt(nextCoordFrom(this.coord, DIR_VECTOR[dir]));
+            return !this.willHitWall(this.coord, nextCoordFrom(this.coord, DIR_VECTOR[dir]));
         });
 
         if (filtered.length > 0) {
             return filtered;
         }
         else {
-            return [OPPOSITE_DIR[this.direction]]; // 行き止まりなら逆走を許す
-        } 
+            return [OPPOSITE_DIR[this.direction]]; // 候補がない(行き止まり)なら逆走を許す
+        }
     }
 
     protected abstract chooseDirection(): Dir;

@@ -90,14 +90,27 @@ export class Renderer {
         this.drawRect(cx - (size / 2), cy - (size / 2), size, size, COLORS.FOOD);
     }
 
+    private drawOneWay(coord: Coordinate) {
+        const { x, y } = this.coordToPixel(coord);
+        this.drawRect(x, y + this.tileSize - this.outlineWidth, this.tileSize, this.outlineWidth, COLORS.ONEWAY);
+    }
+
     public drawWorld(map: Map, foods: Foods) {
         this.drawRect(0, 0, this.canvas.width, this.canvas.height, COLORS.BACKGROUND);
+
+        this.ctx.strokeStyle = "#ccc";
+        this.ctx.font = "normal 8px system-ui";
+        this.ctx.textAlign = "left";
 
         for (let y = 0; y < map.height; y++) {
             for (let x = 0; x < map.width; x++) {
                 const coord = { x, y };
-                this.drawWall(coord, map);
-                this.drawFood(coord, foods);
+                const tileType = map.getTile(coord);
+                // this.ctx.strokeText(`${x},${y}`, x * this.tileSize, y * this.tileSize + 10);
+
+                if (map.isWall(coord)) this.drawWall(coord, map);
+                else if (foods.has(coord)) this.drawFood(coord, foods);
+                else if (tileType === TILE_TYPE.ONEWAY) this.drawOneWay(coord);
             }
         }
     }
@@ -129,15 +142,15 @@ export class Renderer {
 
     }
 
-    public drawEnemy(coord: Coordinate) {
+    public drawEnemy(coord: Coordinate, color: string) {
         const { x, y } = this.coordToPixel(coord);
-        this.drawRect(x, y, this.tileSize, this.tileSize, "#F00");
+        this.drawRect(x, y, this.tileSize, this.tileSize, color);
     }
 
-    public drawTargetPosition(coord: Coordinate) {
+    public drawTargetPosition(coord: Coordinate, color: string) {
         const { cx, cy } = this.coordToCenterPixel(coord);
         const offset = 10;
         const wh = this.tileSize - offset;
-        this.drawRect(cx - (offset / 2), cy - (offset / 2), wh, wh, "#FAA");
+        this.drawRect(cx - (offset / 2), cy - (offset / 2), wh, wh, color);
     }
 }
