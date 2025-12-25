@@ -80,10 +80,10 @@ const mapLayout = [
 //     "###################",
 // ];
 
-// export const MAP_DATA = mapLayout.map(row =>
+// export const STATIC_MAP_DATA = mapLayout.map(row =>
 //     [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR)
 // );
-export const MAP_DATA = mapLayout.map(row =>
+export const STATIC_MAP_DATA = mapLayout.map(row =>
     [...row].map(c => {
         switch (c) {
             case "#":

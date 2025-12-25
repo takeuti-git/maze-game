@@ -16,4 +16,5 @@ function main() {
     game.render();
 }
 
-window.addEventListener("DOMContentLoaded", main);
+globalThis.DEBUG = false;
+main();

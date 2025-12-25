@@ -98,15 +98,19 @@ export class Renderer {
     public drawWorld(map: Map, foods: Foods) {
         this.drawRect(0, 0, this.canvas.width, this.canvas.height, COLORS.BACKGROUND);
 
-        this.ctx.strokeStyle = "#ccc";
-        this.ctx.font = "normal 8px system-ui";
-        this.ctx.textAlign = "left";
+        if (DEBUG) {
+            this.ctx.strokeStyle = "#ccc";
+            this.ctx.font = "normal 8px system-ui";
+            this.ctx.textAlign = "left";
+        }
 
         for (let y = 0; y < map.height; y++) {
             for (let x = 0; x < map.width; x++) {
                 const coord = { x, y };
                 const tileType = map.getTile(coord);
-                // this.ctx.strokeText(`${x},${y}`, x * this.tileSize, y * this.tileSize + 10);
+                if (DEBUG) {
+                    this.ctx.strokeText(`${x},${y}`, x * this.tileSize, y * this.tileSize + 10);
+                }
 
                 if (map.isWall(coord)) this.drawWall(coord, map);
                 else if (foods.has(coord)) this.drawFood(coord, foods);

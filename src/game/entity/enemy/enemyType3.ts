@@ -8,9 +8,9 @@ import type { Coordinate } from "../../../types/coordinate.js";
 
 export class EnemyType3 extends Enemy {
     constructor(map: Map) {
-        const start = { x: 13, y: 15 };
+        const start = { x: 16, y: 12 };
         super(map, start);
-        this._target = { x: 1, y: map.height };
+        this._target = { x: map.width - 1, y: map.height - 1 };
         this.color = COLORS.ENEMY_3;
     }
 

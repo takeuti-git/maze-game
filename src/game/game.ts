@@ -1,49 +1,45 @@
 import type { Enemy } from "./entity/index.js";
-import { Player, EnemyType1, EnemyType2, EnemyType3 } from "./entity/index.js";
+import { Player, EnemyType1, EnemyType2, EnemyType3, EnemyType4 } from "./entity/index.js";
 import { Map } from "./map.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
 
 import { isSameCoord } from "./coord.js";
 import { sleep } from "../util/sleep.js";
-import { getFoodMap, MAP_DATA } from "./mapData.js";
+import { getFoodMap, STATIC_MAP_DATA } from "./mapData.js";
 import type { Dir } from "../constants/dir";
 import { World } from "./world.js";
 
 const GAME_TICK = 150;
+const tickUntilChaseStart = 40;
 
 export class Game {
     private readonly map: Map;
     private readonly player: Player;
-    private readonly enemy1: EnemyType1;
-    private readonly enemy2: EnemyType2;
-    private readonly enemy3: EnemyType3;
     private readonly enemies: Enemy[];
     private readonly foods: Foods;
     private readonly renderer: Renderer;
     private isRunning: boolean;
     private tickCount: number;
-    private tickUntilChase: number;
 
     constructor(canvas: HTMLCanvasElement) {
-        this.map = new Map(MAP_DATA);
+        this.map = new Map(STATIC_MAP_DATA);
 
         this.foods = new Foods(getFoodMap());
 
-        this.player = new Player({ x: 9, y: 16 }, this.map, this.foods);
+        this.player = new Player({ x: 14, y: 23 }, this.map, this.foods);
 
-        this.enemy1 = new EnemyType1(this.map);
-        this.enemy2 = new EnemyType2(this.map);
-        this.enemy3 = new EnemyType3(this.map);
-        this.enemies = [this.enemy1, this.enemy2, this.enemy3];
+        const enemy1 = new EnemyType1(this.map);
+        const enemy2 = new EnemyType2(this.map);
+        const enemy3 = new EnemyType3(this.map);
+        const enemy4 = new EnemyType4(this.map);
+        this.enemies = [enemy1, enemy2, enemy3, enemy4];
 
         this.renderer = new Renderer(canvas, this.map);
 
         this.isRunning = false;
 
         this.tickCount = 0;
-
-        this.tickUntilChase = 20;
     }
 
     public start() {
@@ -64,8 +60,6 @@ export class Game {
         return new World(
             this.player,
             this.enemies,
-            // this.map,
-            // this.foods
         )
     }
 
@@ -75,7 +69,7 @@ export class Game {
         const world = this.updateWorld();
 
         this.tickCount++;
-        if (this.tickCount > this.tickUntilChase) {
+        if (this.tickCount > tickUntilChaseStart) {
             this.enemies.forEach(e => e.updateTarget(world));
         }
 
@@ -105,7 +99,5 @@ export class Game {
             this.renderer.drawEnemy(e.position, e.color);
             this.renderer.drawTargetPosition(e.target, e.color);
         });
-
-        this.renderer.drawTargetPosition(this.enemy3.position, "#0FF");
     }
 }

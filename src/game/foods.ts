@@ -18,7 +18,6 @@ export class Foods {
 
         this.data[coord.y]![coord.x] = false;
         this.count--;
-        console.log(this.count);
         return true;
     }
 

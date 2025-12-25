@@ -8,5 +8,5 @@ export const COLORS = {
     ENEMY_1: "#F00",
     ENEMY_2: "#FAA",
     ENEMY_3: "#0FF",
-    _DEBUG_TARGET: "#FFF",
+    ENEMY_4: "#FA0",
 } as const;
