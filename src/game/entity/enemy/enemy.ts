@@ -8,7 +8,7 @@ import { BehaviroState } from "../../../constants/behaviorState.js";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
-};
+}
 
 export abstract class Enemy extends Entity {
 
@@ -31,8 +31,20 @@ export abstract class Enemy extends Entity {
         this._target = this.scatterCoord;
     }
 
+    private turnAround(): void {
+        this.direction = OPPOSITE_DIR[this.dir];
+    }
+
     public setState(state: BehaviroState) {
+        switch (state) {
+            case BehaviroState.SCATTER:
+            case BehaviroState.CHASE:
+                this.turnAround();
+            // case BehaviroState.FRIGHTENED:
+            // case BehaviroState.EATEN:
+        }
         this.state = state;
+        console.log(`set state: ${BehaviroState[state]}`)
     }
 
     public updateTarget(world: World): void {

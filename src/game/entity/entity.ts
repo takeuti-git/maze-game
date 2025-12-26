@@ -16,11 +16,11 @@ export abstract class Entity {
         this.direction = dir;
     }
 
-    get position(): Coordinate {
+    public get position(): Coordinate {
         return { ...this.coord };
     }
 
-    get dir(): Dir {
+    public get dir(): Dir {
         return this.direction;
     }
 
