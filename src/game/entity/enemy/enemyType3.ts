@@ -10,9 +10,12 @@ export class EnemyType3 extends Enemy {
     protected _target = this.scatterCoord;
 
     constructor(map: Map) {
-        const start = { x: 16, y: 12 };
+        const start = { x: 13, y: 11 };
         super(map, start);
-        this.color = COLORS.ENEMY_3;
+    }
+
+    public get color(): string {
+        return COLORS.ENEMY_3;
     }
 
     protected setTargetChase(world: World) {

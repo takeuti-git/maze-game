@@ -10,7 +10,10 @@ export class EnemyType4 extends Enemy {
     constructor(map: Map) {
         const start = { x: 13, y: 11 };
         super(map, start);
-        this.color = COLORS.ENEMY_4;
+    }
+
+    public get color(): string {
+        return COLORS.ENEMY_4;
     }
 
     protected setTargetChase(world: World): void {

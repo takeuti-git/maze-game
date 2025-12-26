@@ -4,6 +4,7 @@ import type { Coordinate } from "../../../types/coordinate";
 import { Entity } from "../entity.js";
 import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
 import { calcCoordFromVector } from "../../coord.js";
+import { COLORS } from "../../../constants/colors.js";
 
 export class Player extends Entity {
     private moving = false;
@@ -14,8 +15,12 @@ export class Player extends Entity {
         this.foods = foods;
     }
 
-    get isMoving() {
+    public get isMoving() {
         return this.moving;
+    }
+
+    public get color(): string {
+        return COLORS.PLAYER; 
     }
 
     tryChangeDirection(dir: Dir) {

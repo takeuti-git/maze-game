@@ -4,17 +4,16 @@ import type { Dir } from "../../constants/dir.js";
 
 
 export abstract class Entity {
+    public abstract get color(): string;
+
     protected readonly map: Map;
     protected coord: Coordinate;
     protected direction: Dir;
-    public color: string;
 
     constructor(map: Map, start: Coordinate, dir: Dir) {
         this.map = map;
-        if (this.map.getTile(start) === undefined) { this.coord = { x: 1, y: 1 }; }
-        else { this.coord = start; }
+        this.coord = map.getTile(start) !== undefined ? start : { x: 1, y: 1 };
         this.direction = dir;
-        this.color = "#FFF";
     }
 
     get position(): Coordinate {

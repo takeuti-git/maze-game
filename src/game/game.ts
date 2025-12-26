@@ -1,4 +1,6 @@
 import type { Enemy } from "./entity/index.js";
+import type { Dir } from "../constants/dir";
+
 import { Player, EnemyType1, EnemyType2, EnemyType3, EnemyType4 } from "./entity/index.js";
 import { Map } from "./map.js";
 import { Foods } from "./foods.js";
@@ -7,7 +9,6 @@ import { Renderer } from "../ui/render.js";
 import { isSameCoord } from "./coord.js";
 import { sleep } from "../util/sleep.js";
 import { getFoodMap, STATIC_MAP_DATA } from "./mapData.js";
-import type { Dir } from "../constants/dir";
 import { World } from "./world.js";
 import { BehaviroState } from "../constants/behaviorState.js";
 
