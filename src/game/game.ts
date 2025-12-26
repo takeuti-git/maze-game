@@ -9,9 +9,12 @@ import { sleep } from "../util/sleep.js";
 import { getFoodMap, STATIC_MAP_DATA } from "./mapData.js";
 import type { Dir } from "../constants/dir";
 import { World } from "./world.js";
+import { BehaviroState } from "../constants/behaviorState.js";
 
 const GAME_TICK = 150;
-const tickUntilChaseStart = 40;
+
+let modeIndex = 0;
+const MODE_TOGGLE_RANGE = [40, 10, 20, 30];
 
 export class Game {
     private readonly map: Map;
@@ -69,9 +72,10 @@ export class Game {
         const world = this.updateWorld();
 
         this.tickCount++;
-        if (this.tickCount > tickUntilChaseStart) {
-            this.enemies.forEach(e => e.updateTarget(world));
+        if (this.tickCount === 20) {
+            this.enemies.forEach(e => e.setState(BehaviroState.CHASE));
         }
+        this.enemies.forEach(e => e.updateTarget(world));
 
         this.player.move();
         this.enemies.forEach(e => e.move());

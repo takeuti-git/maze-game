@@ -11,3 +11,7 @@ export function isSameVector(a: Vector, b: Vector): boolean {
 export function calcCoordFromVector(coord: Coordinate, dir: Vector): Coordinate {
     return { x: coord.x + dir.vx, y: coord.y + dir.vy };
 }
+
+export function calcOppositeCoordinate(C: Coordinate, P: Coordinate): Coordinate {
+    return { x: 2 * C.x - P.x, y: 2 * C.y - P.y };
+}

@@ -1,29 +1,55 @@
 import type { Coordinate } from "../../../types/coordinate.js";
 import type { Map } from "../../map.js";
-import type { Player } from "../player/player.js";
 import type { World } from "../../world.js";
 import { Entity } from "../entity.js";
 import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
 import { calcCoordFromVector } from "../../coord.js";
+import { BehaviroState } from "../../../constants/behaviorState.js";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
 };
 
 export abstract class Enemy extends Entity {
-    public color: string;
-    protected _target: Coordinate;
+
+    protected abstract scatterCoord: Coordinate;
+    protected abstract _target: Coordinate;
+    protected abstract setTargetChase(world: World): void;
+
+    protected state: BehaviroState;
 
     constructor(map: Map, start: Coordinate) {
         super(map, start, Dir.UP);
-        this._target = { x: 0, y: 0 };
-        this.color = "#FFF";
+        this.state = BehaviroState.SCATTER;
     }
-
-    public abstract updateTarget(world: World): void;
 
     public get target(): Coordinate {
         return { ...this._target };
+    }
+
+    public setTargetScatter(): void {
+        this._target = this.scatterCoord;
+    }
+
+    public setState(state: BehaviroState) {
+        this.state = state;
+    }
+
+    public updateTarget(world: World): void {
+        switch (this.state) {
+            case BehaviroState.SCATTER:
+                this.setTargetScatter();
+                break;
+            case BehaviroState.CHASE:
+                this.setTargetChase(world);
+                break;
+            case BehaviroState.FRIGHTENED:
+                break; // TODO
+            case BehaviroState.EATEN:
+                break; // TODO
+            default:
+                break; // fallback / unnecessary
+        }
     }
 
     protected getDirCandidates(): Dir[] {
