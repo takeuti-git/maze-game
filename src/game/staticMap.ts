@@ -31,6 +31,10 @@ export class StaticMap {
         return this.getTile(coord) === TileType.Wall;
     }
 
+    isOneway(coord: Coordinate): boolean {
+        return this.getTile(coord) === TileType.Oneway;
+    }
+
     canMove(from: Coordinate, to: Coordinate): boolean {
         if (this.isWall(to)) return false;
 
