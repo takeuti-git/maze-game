@@ -1,6 +1,6 @@
-export enum BehaviroState {
-    SCATTER,
-    CHASE,
-    FRIGHTENED,
-    EATEN,
+export enum BehaviorState {
+    Scatter,
+    Chase,
+    Frightened,
+    Eaten,
 }

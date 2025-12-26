@@ -1,10 +1,10 @@
 import type { Coordinate } from "../../../types/coordinate.js";
-import type { Map } from "../../map.js";
+import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
 import { Entity } from "../entity.js";
 import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
 import { calcCoordFromVector } from "../../coord.js";
-import { BehaviroState } from "../../../constants/behaviorState.js";
+import { BehaviorState } from "../../../constants/behaviorState.js";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
@@ -16,11 +16,11 @@ export abstract class Enemy extends Entity {
     protected abstract _target: Coordinate;
     protected abstract setTargetChase(world: World): void;
 
-    protected state: BehaviroState;
+    protected state: BehaviorState;
 
-    constructor(map: Map, start: Coordinate) {
-        super(map, start, Dir.UP);
-        this.state = BehaviroState.SCATTER;
+    constructor(staticMap: StaticMap, start: Coordinate) {
+        super(staticMap, start, Dir.Up);
+        this.state = BehaviorState.Scatter;
     }
 
     public get target(): Coordinate {
@@ -35,30 +35,30 @@ export abstract class Enemy extends Entity {
         this.direction = OPPOSITE_DIR[this.dir];
     }
 
-    public setState(state: BehaviroState) {
+    public setState(state: BehaviorState) {
         // scatter <-> chase: 切り替わったとき移動方向を180度変更する
         switch (state) {
-            case BehaviroState.SCATTER:
-            case BehaviroState.CHASE:
+            case BehaviorState.Scatter:
+            case BehaviorState.Chase:
                 this.turnAround();
-            // case BehaviroState.FRIGHTENED:
-            // case BehaviroState.EATEN:
+            // case BehaviorState.Frightened:
+            // case BehaviorState.Eaten:
         }
         this.state = state;
-        console.log(`set state: ${BehaviroState[state]}`)
+        console.log(`set state: ${BehaviorState[state]}`)
     }
 
     public updateTarget(world: World): void {
         switch (this.state) {
-            case BehaviroState.SCATTER:
+            case BehaviorState.Scatter:
                 this.setTargetScatter();
                 break;
-            case BehaviroState.CHASE:
+            case BehaviorState.Chase:
                 this.setTargetChase(world);
                 break;
-            case BehaviroState.FRIGHTENED:
+            case BehaviorState.Frightened:
                 break; // TODO
-            case BehaviroState.EATEN:
+            case BehaviorState.Eaten:
                 break; // TODO
             default:
                 break; // fallback / unnecessary

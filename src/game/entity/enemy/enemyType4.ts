@@ -1,15 +1,15 @@
-import type { Map } from "../../map.js";
+import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
 import { Enemy } from "./enemy.js";
 import { COLORS } from "../../../constants/colors.js";
 
 export class EnemyType4 extends Enemy {
-    protected scatterCoord = { x: 1, y: this.map.height - 1 };
+    protected scatterCoord = { x: 1, y: this.staticMap.height - 1 };
     protected _target = this.scatterCoord;
 
-    constructor(map: Map) {
+    constructor(staticMap: StaticMap) {
         const start = { x: 13, y: 11 };
-        super(map, start);
+        super(staticMap, start);
     }
 
     public get color(): string {

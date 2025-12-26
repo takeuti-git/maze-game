@@ -1,5 +1,5 @@
 import type { Foods } from "../../foods";
-import type { Map } from "../../map";
+import type { StaticMap } from "../../staticMap";
 import type { Coordinate } from "../../../types/coordinate";
 import { Entity } from "../entity.js";
 import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
@@ -10,8 +10,8 @@ export class Player extends Entity {
     private moving = false;
     private readonly foods: Foods;
 
-    constructor(start: Coordinate, map: Map, foods: Foods) {
-        super(map, start, Dir.UP)
+    constructor(start: Coordinate, staticMap: StaticMap, foods: Foods) {
+        super(staticMap, start, Dir.Up)
         this.foods = foods;
     }
 
@@ -29,10 +29,10 @@ export class Player extends Entity {
         this.direction = dir;
     }
 
-    // turnUp() { this.tryChangeDirection(Dir.UP); }
-    // turnRight() { this.tryChangeDirection(Dir.RIGHT); }
-    // turnDown() { this.tryChangeDirection(Dir.DOWN); }
-    // turnLeft() { this.tryChangeDirection(Dir.LEFT); }
+    // turnUp() { this.tryChangeDirection(Dir.Up); }
+    // turnRight() { this.tryChangeDirection(Dir.Right); }
+    // turnDown() { this.tryChangeDirection(Dir.Down); }
+    // turnLeft() { this.tryChangeDirection(Dir.Left); }
 
     move() {
         const vec = DIR_VECTOR[this.direction];
@@ -44,15 +44,11 @@ export class Player extends Entity {
 
         this.moving = true;
         if (this.foods.eat(next)) {
-            this.onEat();
+            // TODO this.onEat?
         }
 
         this.coord = next;
         this.wrapMovement();
-    }
-
-    private onEat() {
-        // console.log("eating");
     }
 
     die() {

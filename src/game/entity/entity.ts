@@ -1,19 +1,19 @@
 import type { Coordinate } from "../../types/coordinate";
-import type { Map } from "../map.js";
+import type { StaticMap } from "../staticMap.js";
 import type { Dir } from "../../constants/dir.js";
 
 
 export abstract class Entity {
     public abstract get color(): string;
 
-    protected readonly map: Map;
+    protected readonly staticMap: StaticMap;
     protected coord: Coordinate;
     protected prevCoord: Coordinate;
     protected direction: Dir;
 
-    constructor(map: Map, start: Coordinate, dir: Dir) {
-        this.map = map;
-        this.coord = map.getTile(start) !== undefined ? start : { x: 1, y: 1 };
+    constructor(staticMap: StaticMap, start: Coordinate, dir: Dir) {
+        this.staticMap = staticMap;
+        this.coord = staticMap.getTile(start) !== undefined ? start : { x: 1, y: 1 };
         this.prevCoord = this.coord;
         this.direction = dir;
     }
@@ -34,7 +34,7 @@ export abstract class Entity {
     }
 
     protected willHitWall(current: Coordinate, next: Coordinate): boolean {
-        return !this.map.canMove(current, next);
+        return !this.staticMap.canMove(current, next);
     }
 
     public savePrevCoord(): void {
@@ -46,8 +46,8 @@ export abstract class Entity {
     protected wrapMovement(): void {
         // マップの端から端までの瞬間移動
         const minXY = 0
-        const maxX = this.map.width - 1;
-        const maxY = this.map.height - 1;
+        const maxX = this.staticMap.width - 1;
+        const maxY = this.staticMap.height - 1;
         if (this.coord.x < minXY) this.coord.x = maxX;
         else if (this.coord.x > maxX) this.coord.x = minXY;
         else if (this.coord.y < minXY) this.coord.y = maxY;

@@ -1,7 +1,7 @@
 import { COLORS } from "../constants/colors.js";
 import { Dir } from "../constants/dir.js";
-import { TILE_TYPE } from "../constants/tile.js";
-import type { Map } from "../game/map.js";
+import { TileType } from "../constants/tile.js";
+import type { StaticMap } from "../game/staticMap.js";
 import type { Foods } from "../game/foods.js";
 import type { Coordinate } from "../types/coordinate.js";
 
@@ -14,15 +14,15 @@ export class Renderer {
     private readonly FRAME_COUNT = 2;
     private playerFrame = 0;
 
-    constructor(targetCanvas: HTMLCanvasElement, map: Map) {
+    constructor(targetCanvas: HTMLCanvasElement, staticMap: StaticMap) {
         this.canvas = targetCanvas;
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
         this.tileSize = 21;
         this.outlineWidth = 1;
         this.playerFrame = 0;
 
-        this.canvas.width = map.width * this.tileSize;
-        this.canvas.height = map.height * this.tileSize;
+        this.canvas.width = staticMap.width * this.tileSize;
+        this.canvas.height = staticMap.height * this.tileSize;
     }
 
     private coordToPixel(coord: Coordinate): { x: number, y: number } {
@@ -54,68 +54,67 @@ export class Renderer {
         this.ctx.closePath();
     }
 
-    /** WALLに対して、上下左右の壁を描く */
-    private drawWall(coord: Coordinate, map: Map) {
-        const tile = map.getTile(coord);
-        if (tile !== TILE_TYPE.WALL) return;
+    /** Wallに対して、上下左右の壁を描く */
+    private drawWall(coord: Coordinate, staticMap: StaticMap) {
+        if (staticMap.getTile(coord) !== TileType.Wall) return;
 
         const { x, y } = this.coordToPixel(coord);
         // this.drawRect(x, y, this.tileSize, this.tileSize, COLORS.WALL);
 
-        const neighbors = map.getAdjacentTiles(coord);
+        const neighbors = staticMap.getAdjacentTiles(coord);
 
         const coordOffset = 7;
         const lengthOffset = coordOffset * 2;
 
-        if (neighbors[Dir.UP] === TILE_TYPE.FLOOR) {
+        if (neighbors[Dir.Up] === TileType.Floor) {
             const px = x + coordOffset;
             const py = y + coordOffset;
             const w = this.tileSize;
             const h = this.outlineWidth;
 
-            if (neighbors[Dir.LEFT] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Left] === TileType.Wall) {
                 this.drawWallOutline(px - lengthOffset - 1, py, w, h);
             }
-            if (neighbors[Dir.RIGHT] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Right] === TileType.Wall) {
                 this.drawWallOutline(px, py, w + 1, h);
             }
         }
-        if (neighbors[Dir.DOWN] === TILE_TYPE.FLOOR) {
+        if (neighbors[Dir.Down] === TileType.Floor) {
             const px = x + coordOffset;
             const py = y + this.tileSize - this.outlineWidth - coordOffset;
             const w = this.tileSize;
             const h = this.outlineWidth;
 
-            if (neighbors[Dir.LEFT] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Left] === TileType.Wall) {
                 this.drawWallOutline(px - lengthOffset - 1, py, w, h);
             }
-            if (neighbors[Dir.RIGHT] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Right] === TileType.Wall) {
                 this.drawWallOutline(px, py, w + 1, h);
             }
         }
-        if (neighbors[Dir.LEFT] === TILE_TYPE.FLOOR) {
+        if (neighbors[Dir.Left] === TileType.Floor) {
             const px = x + coordOffset;
             const py = y + coordOffset;
             const w = this.outlineWidth;
             const h = this.tileSize;
 
-            if (neighbors[Dir.UP] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Up] === TileType.Wall) {
                 this.drawWallOutline(px, py - lengthOffset, w, h);
             }
-            if (neighbors[Dir.DOWN] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Down] === TileType.Wall) {
                 this.drawWallOutline(px, py, w, h);
             }
         }
-        if (neighbors[Dir.RIGHT] === TILE_TYPE.FLOOR) {
+        if (neighbors[Dir.Right] === TileType.Floor) {
             const px = x + this.tileSize - this.outlineWidth - coordOffset;
             const py = y + coordOffset;
             const w = this.outlineWidth;
             const h = this.tileSize;
 
-            if (neighbors[Dir.UP] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Up] === TileType.Wall) {
                 this.drawWallOutline(px, py - lengthOffset, w, h);
             }
-            if (neighbors[Dir.DOWN] === TILE_TYPE.WALL) {
+            if (neighbors[Dir.Down] === TileType.Wall) {
                 this.drawWallOutline(px, py, w, h);
             }
         }
@@ -138,22 +137,22 @@ export class Renderer {
         this.drawRect(x - 8, y + 8, this.tileSize + 15, this.tileSize - 16, COLORS.ONEWAY);
     }
 
-    public drawWorld(map: Map, foods: Foods) {
+    public drawWorld(staticMap: StaticMap, foods: Foods) {
         this.drawRect(0, 0, this.canvas.width, this.canvas.height, COLORS.BACKGROUND);
 
-        for (let y = 0; y < map.height; y++) {
-            for (let x = 0; x < map.width; x++) {
+        for (let y = 0; y < staticMap.height; y++) {
+            for (let x = 0; x < staticMap.width; x++) {
                 const coord = { x, y };
-                const tileType = map.getTile(coord);
+                const tileType = staticMap.getTile(coord);
                 if (DEBUG) {
                     // this.ctx.strokeText(`${x},${y}`, x * this.tileSize, y * this.tileSize + 10);
                     this.drawRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize, (x + y) % 2 === 0 ? "#333" : "#555");
                 }
 
 
-                if (map.isWall(coord)) this.drawWall(coord, map);
+                if (staticMap.isWall(coord)) this.drawWall(coord, staticMap);
                 else if (foods.has(coord)) this.drawFood(coord, foods);
-                else if (tileType === TILE_TYPE.ONEWAY) this.drawOneWay(coord);
+                else if (tileType === TileType.Oneway) this.drawOneWay(coord);
             }
         }
     }
@@ -162,10 +161,10 @@ export class Renderer {
         const { cx, cy } = this.coordToCenterPixel(coord);
 
         const DIR_TO_SPRITE_INDEX: Record<Dir, number> = {
-            [Dir.UP]: 3,
-            [Dir.RIGHT]: 0,
-            [Dir.DOWN]: 1,
-            [Dir.LEFT]: 2,
+            [Dir.Up]: 3,
+            [Dir.Right]: 0,
+            [Dir.Down]: 1,
+            [Dir.Left]: 2,
         };
         const dirOffset = DIR_TO_SPRITE_INDEX[dir];
 

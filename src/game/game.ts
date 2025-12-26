@@ -3,15 +3,15 @@ import type { Enemy } from "./entity/index.js";
 import type { Dir } from "../constants/dir";
 
 import { Player, EnemyType1, EnemyType2, EnemyType3, EnemyType4 } from "./entity/index.js";
-import { Map } from "./map.js";
+import { StaticMap } from "./staticMap.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
 
 import { isSameCoord } from "./coord.js";
 import { sleep } from "../util/sleep.js";
-import { getFoodMap, STATIC_MAP_DATA } from "./mapData.js";
+import { getFoodMap, staticMapData } from "./mapData.js";
 import { World } from "./world.js";
-import { BehaviroState } from "../constants/behaviorState.js";
+import { BehaviorState } from "../constants/behaviorState.js";
 
 const GAME_TICK = 160;
 
@@ -20,7 +20,7 @@ const secondToTick = (second: number) => second * 1000;
 const MODE_RANGE_SECONDS = [7, 20, 7, 20, 5, 20, 5];
 
 export class Game {
-    private readonly map: Map;
+    private readonly map: StaticMap;
     private readonly player: Player;
     private readonly enemies: Enemy[];
     private readonly entities: Entity[];
@@ -30,7 +30,7 @@ export class Game {
     private tickCount: number;
 
     constructor(canvas: HTMLCanvasElement) {
-        this.map = new Map(STATIC_MAP_DATA);
+        this.map = new StaticMap(staticMapData);
 
         this.foods = new Foods(getFoodMap());
 
@@ -84,9 +84,9 @@ export class Game {
             modeIndex = (modeIndex + 1) % MODE_RANGE_SECONDS.length;
 
             if (modeIndex % 2 === 0) {
-                this.enemies.forEach(e => e.setState(BehaviroState.SCATTER));
+                this.enemies.forEach(e => e.setState(BehaviorState.Scatter));
             } else {
-                this.enemies.forEach(e => e.setState(BehaviroState.CHASE));
+                this.enemies.forEach(e => e.setState(BehaviorState.Chase));
             }
         }
 

@@ -1,33 +1,33 @@
 import type { Vector } from "../types/coordinate";
 
 export enum Dir {
-    UP,
-    RIGHT,
-    DOWN,
-    LEFT
+    Up,
+    Right,
+    Down,
+    Left
 }
 
 export const DIR_VECTOR: Record<Dir, Vector> = {
-    [Dir.UP]: { vx: 0, vy: -1 },
-    [Dir.RIGHT]: { vx: 1, vy: 0 },
-    [Dir.DOWN]: { vx: 0, vy: 1 },
-    [Dir.LEFT]: { vx: -1, vy: 0 },
+    [Dir.Up]: { vx: 0, vy: -1 },
+    [Dir.Right]: { vx: 1, vy: 0 },
+    [Dir.Down]: { vx: 0, vy: 1 },
+    [Dir.Left]: { vx: -1, vy: 0 },
 };
 
 export const OPPOSITE_DIR: Record<Dir, Dir> = {
-    [Dir.UP]: Dir.DOWN,
-    [Dir.RIGHT]: Dir.LEFT,
-    [Dir.DOWN]: Dir.UP,
-    [Dir.LEFT]: Dir.RIGHT,
-}
+    [Dir.Up]: Dir.Down,
+    [Dir.Right]: Dir.Left,
+    [Dir.Down]: Dir.Up,
+    [Dir.Left]: Dir.Right,
+} as const;
 
 /** 
  * 方向決定の優先順位  
  * 上 > 左 > 下 > 右 
  */
 export const ALL_DIRS: readonly Dir[] = [
-    Dir.UP,
-    Dir.LEFT,
-    Dir.DOWN,
-    Dir.RIGHT,
+    Dir.Up,
+    Dir.Left,
+    Dir.Down,
+    Dir.Right,
 ] as const;

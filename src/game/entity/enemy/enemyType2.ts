@@ -1,4 +1,4 @@
-import type { Map } from "../../map.js";
+import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
 import { DIR_VECTOR } from "../../../constants/dir.js";
 import { calcCoordFromVector } from "../../coord.js";
@@ -9,9 +9,9 @@ export class EnemyType2 extends Enemy {
     protected scatterCoord = { x: 1, y: -1 };
     protected _target = this.scatterCoord;
 
-    constructor(map: Map) {
+    constructor(staticMap: StaticMap) {
         const start = { x: 13, y: 15 };
-        super(map, start);
+        super(staticMap, start);
     }
 
     public get color(): string {

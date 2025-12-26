@@ -1,4 +1,4 @@
-import { TILE_TYPE } from "../constants/tile.js";
+import { TileType } from "../constants/tile.js";
 
 // #: wall
 // -: floor
@@ -61,40 +61,19 @@ const mapLayout = [
 //     "#'''''''''''''''''#",
 //     "###################",
 // ];
-// const mapLayout = [ // debug
-//     "###################",
-//     "#'--#----#-------'#",
-//     "#---####-#--------#",
-//     "#------#-#--------#",
-//     "########-##########",
-//     "#-----------------#",
-//     "#-######-###-####-#",
-//     "#-----------------#",
-//     "#-####-###-######-#",
-//     "--#----###------#--",
-//     "#-####-###-######-#",
-//     "#-----------------#",
-//     "#-######-###-####-#",
-//     "#-######-###-####-#",
-//     "#-----------------#",
-//     "###################",
-// ];
 
-// export const STATIC_MAP_DATA = mapLayout.map(row =>
-//     [...row].map(c => c === "#" ? TILE_TYPE.WALL : TILE_TYPE.FLOOR)
-// );
-export const STATIC_MAP_DATA = mapLayout.map(row =>
+export const staticMapData = mapLayout.map(row =>
     [...row].map(c => {
         switch (c) {
             case "#":
-                return TILE_TYPE.WALL;
+                return TileType.Wall;
             case "-":
             case "'":
-                return TILE_TYPE.FLOOR;
+                return TileType.Floor;
             case "_":
-                return TILE_TYPE.ONEWAY;
+                return TileType.Oneway;
             default:
-                return TILE_TYPE.FLOOR;
+                return TileType.Floor;
         }
     })
 );
