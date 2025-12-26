@@ -49,7 +49,7 @@ export class InputHandler {
     updateGameActions() {
         for (const key of this.keyStates) {
             const dir = KEY_TO_DIR[key];
-            if (dir) {
+            if (dir != undefined) {
                 this.game.requestPlayerTurn(dir);
                 break;
             }
