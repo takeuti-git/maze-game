@@ -36,6 +36,7 @@ export abstract class Enemy extends Entity {
     }
 
     public setState(state: BehaviroState) {
+        // scatter <-> chase: 切り替わったとき移動方向を180度変更する
         switch (state) {
             case BehaviroState.SCATTER:
             case BehaviroState.CHASE:

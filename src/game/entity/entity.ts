@@ -8,16 +8,25 @@ export abstract class Entity {
 
     protected readonly map: Map;
     protected coord: Coordinate;
+    protected prevCoord: Coordinate;
     protected direction: Dir;
 
     constructor(map: Map, start: Coordinate, dir: Dir) {
         this.map = map;
         this.coord = map.getTile(start) !== undefined ? start : { x: 1, y: 1 };
+        this.prevCoord = this.coord;
         this.direction = dir;
     }
 
     public get position(): Coordinate {
         return { ...this.coord };
+    }
+
+    public get prevPosition(): Coordinate {
+        return { ...this.prevCoord };
+    }
+    public set prevPosition(coord: Coordinate) {
+        this.prevCoord = { ...coord };
     }
 
     public get dir(): Dir {
@@ -28,7 +37,11 @@ export abstract class Entity {
         return !this.map.canMove(current, next);
     }
 
-    protected abstract move(): void;
+    public savePrevCoord(): void {
+        this.prevCoord = this.position;
+    }
+
+    public abstract move(): void;
 
     protected wrapMovement(): void {
         // マップの端から端までの瞬間移動

@@ -1,3 +1,4 @@
+import type { Entity } from "./entity/entity.js";
 import type { Enemy } from "./entity/index.js";
 import type { Dir } from "../constants/dir";
 
@@ -22,6 +23,7 @@ export class Game {
     private readonly map: Map;
     private readonly player: Player;
     private readonly enemies: Enemy[];
+    private readonly entities: Entity[];
     private readonly foods: Foods;
     private readonly renderer: Renderer;
     private isRunning: boolean;
@@ -34,11 +36,13 @@ export class Game {
 
         this.player = new Player({ x: 14, y: 23 }, this.map, this.foods);
 
-        const enemy1 = new EnemyType1(this.map, {x: 13, y: 12});
+        const enemy1 = new EnemyType1(this.map, { x: 13, y: 12 });
         const enemy2 = new EnemyType2(this.map);
         const enemy3 = new EnemyType3(this.map);
         const enemy4 = new EnemyType4(this.map);
         this.enemies = [enemy1, enemy2, enemy3, enemy4];
+
+        this.entities = [this.player, ...this.enemies];
 
         this.renderer = new Renderer(canvas, this.map);
 
@@ -85,16 +89,17 @@ export class Game {
                 this.enemies.forEach(e => e.setState(BehaviroState.CHASE));
             }
         }
+
         this.enemies.forEach(e => e.updateTarget(world));
 
-        this.player.move();
-        this.enemies.forEach(e => e.move());
+        this.entities.forEach(e => e.savePrevCoord());
+        this.entities.forEach(e => e.move());
+
         this.render();
 
-
-        if (this.enemies.some(e => isSameCoord(this.player.position, e.position))) {
-            this.player.die();
+        if (checkPlayerEnemyCollision(this.player, this.enemies)) {
             this.stop();
+            this.player.die();
         }
 
         if (this.foods.isEmpty()) {
@@ -113,4 +118,32 @@ export class Game {
             this.renderer.drawTargetPosition(e.target, e.color);
         });
     }
+}
+
+function isCollided(a: Entity, b: Entity): boolean {
+    // 同じマス
+    if (isSameCoord(a.position, b.position)) {
+        return true;
+    }
+
+    // すれ違い
+    if (
+        a.position.x === b.prevPosition.x &&
+        a.position.y === b.prevPosition.y &&
+        b.position.x === a.prevPosition.x &&
+        b.position.y === a.prevPosition.y 
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+function checkPlayerEnemyCollision(player: Player, enemies: Enemy[]): boolean {
+    for (const enemy of enemies) {
+        if (isCollided(player, enemy)) {
+            return true;
+        }
+    }
+    return false;
 }
