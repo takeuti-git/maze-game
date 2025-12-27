@@ -73,8 +73,13 @@ export class Game {
 
     private async gameLoop() {
         if (!this.isRunning) return;
-        await sleep(GAME_TICK);
 
+        await sleep(GAME_TICK);
+        this.tick();
+        requestAnimationFrame(() => this.gameLoop());
+    }
+
+    private tick() {
         const world = this.updateWorld();
 
         this.tickCount += GAME_TICK;
@@ -105,7 +110,6 @@ export class Game {
             this.stop();
         }
 
-        requestAnimationFrame(() => this.gameLoop());
     }
 
     public render() {
