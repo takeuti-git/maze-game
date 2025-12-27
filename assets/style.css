@@ -3,9 +3,13 @@ body {
     position: relative;
     height: fit-content;
 }
-#canvas {
-    position: absolute;
+
+.center {
+    position: relative;
     left: 50%;
     transform: translateX(-50%);
+}
+
+#canvas {
     border: 2px solid;
 }
