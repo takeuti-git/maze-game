@@ -1,17 +1,16 @@
-import type { Entity } from "./entity/entity.js";
-import type { Enemy } from "./entity/index.js";
-import type { Dir } from "../constants/dir";
+import type { Dir } from "../constants/dir.js";
+import type { Entity, Enemy } from "./entity/index.js";
 
 import { Player, EnemyType1, EnemyType2, EnemyType3, EnemyType4 } from "./entity/index.js";
 import { StaticMap } from "./staticMap.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
+import { World } from "./world.js";
+import { BehaviorState } from "../constants/behaviorState.js";
 
 import { isSameCoord } from "./coord.js";
 import { sleep } from "../util/sleep.js";
 import { getFoodMap, staticMapData } from "./mapData.js";
-import { World } from "./world.js";
-import { BehaviorState } from "../constants/behaviorState.js";
 
 const GAME_TICK = 160;
 
@@ -36,10 +35,10 @@ export class Game {
 
         this.player = new Player({ x: 14, y: 23 }, this.map, this.foods);
 
-        const enemy1 = new EnemyType1(this.map, { x: 13, y: 12 });
-        const enemy2 = new EnemyType2(this.map);
-        const enemy3 = new EnemyType3(this.map);
-        const enemy4 = new EnemyType4(this.map);
+        const enemy1 = new EnemyType1(this.map, { x: 14, y: 12 });
+        const enemy2 = new EnemyType2(this.map, { x: 13, y: 12 });
+        const enemy3 = new EnemyType3(this.map, { x: 15, y: 11 });
+        const enemy4 = new EnemyType4(this.map, { x: 12, y: 11 });
         this.enemies = [enemy1, enemy2, enemy3, enemy4];
 
         this.entities = [this.player, ...this.enemies];
@@ -131,7 +130,7 @@ function isCollided(a: Entity, b: Entity): boolean {
         a.position.x === b.prevPosition.x &&
         a.position.y === b.prevPosition.y &&
         b.position.x === a.prevPosition.x &&
-        b.position.y === a.prevPosition.y 
+        b.position.y === a.prevPosition.y
     ) {
         return true;
     }
