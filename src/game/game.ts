@@ -16,7 +16,7 @@ const GAME_TICK = 160;
 
 let modeIndex = 0;
 const secondToTick = (second: number) => second * 1000;
-const MODE_RANGE_SECONDS = [7, 20, 7, 20, 5, 20, 5];
+const MODE_RANGE_SECONDS = [7, 20, 7, 20, 5, 20, 5, Infinity];
 
 export class Game {
     private readonly map: StaticMap;
