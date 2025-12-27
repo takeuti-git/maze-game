@@ -5,7 +5,7 @@ import { COLORS } from "../../../constants/colors.js";
 import type { Coordinate } from "../../../types/coordinate.js";
 
 export class EnemyType1 extends Enemy {
-    protected scatterCoord = { x: this.staticMap.width - 1, y: -1 }; // 画面右上
+    protected scatterCoord = { x: this.staticMap.width - 4, y: -4 }; // 画面右上
     protected _target = this.scatterCoord;
 
     constructor(staticMap: StaticMap, start: Coordinate) {

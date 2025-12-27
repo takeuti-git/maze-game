@@ -1,3 +1,4 @@
+import type { Coordinate } from "../../../types/coordinate.js";
 import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
 import { Enemy } from "./enemy.js";
@@ -6,11 +7,10 @@ import { DIR_VECTOR } from "../../../constants/dir.js";
 import { calcCoordFromVector, calcOppositeCoordinate } from "../../coord.js";
 
 export class EnemyType3 extends Enemy {
-    protected scatterCoord = { x: this.staticMap.width - 1, y: this.staticMap.height - 1 };
+    protected scatterCoord = { x: this.staticMap.width - 1, y: this.staticMap.height }; // 画面右下
     protected _target = this.scatterCoord;
 
-    constructor(staticMap: StaticMap) {
-        const start = { x: 13, y: 11 };
+    constructor(staticMap: StaticMap, start: Coordinate) {
         super(staticMap, start);
     }
 
