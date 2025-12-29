@@ -9,14 +9,14 @@ export class EnemyType1 extends Enemy {
     protected _target = this.scatterCoord;
 
     constructor(staticMap: StaticMap, start: Coordinate) {
-        super(staticMap, start);
+        super(staticMap, start, 0);
     }
 
     public get color(): string {
         return COLORS.ENEMY_1;
     }
 
-    protected setTargetChase(world: World): void {
-        this._target = world.player.position;
+    protected calcChaseTarget(world: World): Coordinate {
+        return world.player.position;
     }
 }

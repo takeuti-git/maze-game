@@ -6,7 +6,7 @@ import { StaticMap } from "./staticMap.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
 import { World } from "./world.js";
-import { BehaviorState } from "../constants/behaviorState.js";
+import { EnemyBehaviorState } from "../constants/enemyState.js";
 
 import { isSameCoord } from "./coord.js";
 import { sleep } from "../util/sleep.js";
@@ -35,10 +35,10 @@ export class Game {
 
         this.player = new Player({ x: 14, y: 23 }, this.map, this.foods);
 
-        const enemy1 = new EnemyType1(this.map, { x: 14, y: 12 });
-        const enemy2 = new EnemyType2(this.map, { x: 13, y: 12 });
-        const enemy3 = new EnemyType3(this.map, { x: 15, y: 11 });
-        const enemy4 = new EnemyType4(this.map, { x: 12, y: 11 });
+        const enemy1 = new EnemyType1(this.map, { x: 13, y: 11 });
+        const enemy2 = new EnemyType2(this.map, { x: 13, y: 13 });
+        const enemy3 = new EnemyType3(this.map, { x: 12, y: 13 });
+        const enemy4 = new EnemyType4(this.map, { x: 15, y: 13 });
         this.enemies = [enemy1, enemy2, enemy3, enemy4];
 
         this.entities = [this.player, ...this.enemies];
@@ -88,9 +88,9 @@ export class Game {
             modeIndex = (modeIndex + 1) % MODE_RANGE_SECONDS.length;
 
             if (modeIndex % 2 === 0) {
-                this.enemies.forEach(e => e.setState(BehaviorState.Scatter));
+                this.enemies.forEach(e => e.setBehaviorState(EnemyBehaviorState.Scatter));
             } else {
-                this.enemies.forEach(e => e.setState(BehaviorState.Chase));
+                this.enemies.forEach(e => e.setBehaviorState(EnemyBehaviorState.Chase));
             }
         }
 

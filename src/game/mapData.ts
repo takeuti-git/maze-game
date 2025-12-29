@@ -1,9 +1,12 @@
 import { TileType } from "../constants/tile.js";
 
-// #: wall
-// -: floor
-// ': food
-// _: one-way
+const STR_TO_TILE_TYPE: Record<string, TileType> = {
+    "#": TileType.Wall,
+    "-": TileType.Floor,
+    "'": TileType.Floor,
+    "^": TileType.Oneway,
+};
+
 const mapLayout = [
     "############################",
     "#''''''''''''##''''''''''''#",
@@ -17,7 +20,7 @@ const mapLayout = [
     "######'#####-##-#####'######",
     "-----#'#####-##-#####'#-----",
     "-----#'##----------##'#-----",
-    "-----#'##-###__###-##'#-----",
+    "-----#'##-###^^###-##'#-----",
     "######'##-#------#-##'######",
     "------'---#------#---'------",
     "######'##-#------#-##'######",
@@ -28,7 +31,7 @@ const mapLayout = [
     "#''''''''''''##''''''''''''#",
     "#'####'#####'##'#####'####'#",
     "#'####'#####'##'#####'####'#",
-    "#'''##''''''''''''''''##'''#",
+    "#'''##'''''''--'''''''##'''#",
     "###'##'##'########'##'##'###",
     "###'##'##'########'##'##'###",
     "#''''''##''''##''''##''''''#",
@@ -64,17 +67,7 @@ const mapLayout = [
 
 export const staticMapData = mapLayout.map(row =>
     [...row].map(c => {
-        switch (c) {
-            case "#":
-                return TileType.Wall;
-            case "-":
-            case "'":
-                return TileType.Floor;
-            case "_":
-                return TileType.Oneway;
-            default:
-                return TileType.Floor;
-        }
+        return STR_TO_TILE_TYPE[c] ?? TileType.Floor;
     })
 );
 

@@ -11,19 +11,20 @@ export class EnemyType2 extends Enemy {
     protected _target = this.scatterCoord;
 
     constructor(staticMap: StaticMap, start: Coordinate) {
-        super(staticMap, start);
+        super(staticMap, start, 0);
     }
 
     public get color(): string {
         return COLORS.ENEMY_2;
     }
 
-    protected setTargetChase(world: World): void {
+    protected calcChaseTarget(world: World): Coordinate {
         const offset = 4;
         const player = world.player;
         const playerVec = DIR_VECTOR[player.dir];
 
         const targetVec = { vx: playerVec.vx * offset, vy: playerVec.vy * offset };
-        this._target = calcCoordFromVector(player.position, targetVec);
+        
+        return calcCoordFromVector(player.position, targetVec);
     }
 }

@@ -11,14 +11,15 @@ export class EnemyType3 extends Enemy {
     protected _target = this.scatterCoord;
 
     constructor(staticMap: StaticMap, start: Coordinate) {
-        super(staticMap, start);
+        super(staticMap, start, 5000);
     }
 
     public get color(): string {
         return COLORS.ENEMY_3;
     }
 
-    protected setTargetChase(world: World) {
+
+    protected calcChaseTarget(world: World): Coordinate {
         const offset = 2;
         const player = world.player;
         const playerVec = DIR_VECTOR[player.dir];
@@ -27,6 +28,6 @@ export class EnemyType3 extends Enemy {
         const offsetVec = { vx: playerVec.vx * offset, vy: playerVec.vy * offset };
         const offsetCoord = calcCoordFromVector(player.position, offsetVec);
 
-        this._target = calcOppositeCoordinate(offsetCoord, enemy1Position);
+        return calcOppositeCoordinate(offsetCoord, enemy1Position);
     }
 }

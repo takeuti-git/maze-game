@@ -9,14 +9,14 @@ export class EnemyType4 extends Enemy {
     protected _target = this.scatterCoord;
 
     constructor(staticMap: StaticMap, start: Coordinate) {
-        super(staticMap, start);
+        super(staticMap, start, 10000);
     }
 
     public get color(): string {
         return COLORS.ENEMY_4;
     }
 
-    protected setTargetChase(world: World): void {
+    protected calcChaseTarget(world: World): Coordinate {
         const radius = 8;
 
         const player = world.player;
@@ -27,10 +27,10 @@ export class EnemyType4 extends Enemy {
 
         if (dist >= radius) {
             // プレイヤーの一定半径以上にいるとき
-            this._target = player.position;
+            return player.position;
         } else {
             // プレイヤーの一定半径未満にいるとき
-            this._target = this.scatterCoord;
+            return this.scatterCoord;
         }
     }
 }
