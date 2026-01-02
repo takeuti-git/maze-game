@@ -8,7 +8,7 @@ import { Renderer } from "../ui/render.js";
 import { World } from "./world.js";
 import { EnemyBehaviorState } from "../constants/enemyState.js";
 
-import { isSameCoord } from "./coord.js";
+import { isSameTile } from "./coord.js";
 import { sleep } from "../util/sleep.js";
 import { getFoodMap, staticMapData } from "./mapData.js";
 
@@ -125,7 +125,7 @@ export class Game {
 
 function isCollided(a: Entity, b: Entity): boolean {
     // 同じマス
-    if (isSameCoord(a.position, b.position)) {
+    if (isSameTile(a.position, b.position)) {
         return true;
     }
 

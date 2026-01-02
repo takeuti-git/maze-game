@@ -1,6 +1,6 @@
 import type { Coordinate, Vector } from "../types/coordinate";
 
-export function isSameCoord(a: Coordinate, b: Coordinate): boolean {
+export function isSameTile(a: Coordinate, b: Coordinate): boolean {
     return a.x === b.x && a.y === b.y;
 }
 
