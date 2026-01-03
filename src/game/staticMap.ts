@@ -1,6 +1,6 @@
 import { Dir } from "../constants/dir.js";
 import { TileType } from "../constants/tile.js";
-import type { Coordinate } from "../types/coordinate.js";
+import type { TileCoord } from "../types/coordinate.js";
 
 export class StaticMap {
     public readonly data: TileType[][];
@@ -9,39 +9,41 @@ export class StaticMap {
 
     constructor(data: TileType[][]) {
         this.data = data;
-        this.width = data[0]?.length ?? 0;
+        if (!data[0]) throw new Error("invalid data for static map");
+
+        this.width = data[0]?.length;
         this.height = data.length;
     }
 
-    getTile(coord: Coordinate): TileType | undefined {
-        return this.data[coord.y]?.[coord.x];
+    getTile(tile: TileCoord): TileType | undefined {
+        return this.data[tile.ty]?.[tile.tx];
     }
 
     /** 上下左右のタイルを返す */
-    getAdjacentTiles(coord: Coordinate): Record<Dir, TileType | undefined> {
+    getAdjacentTiles(tile: TileCoord): Record<Dir, TileType | undefined> {
         return {
-            [Dir.Up]: this.getTile({ x: coord.x, y: coord.y - 1 }),
-            [Dir.Down]: this.getTile({ x: coord.x, y: coord.y + 1 }),
-            [Dir.Left]: this.getTile({ x: coord.x - 1, y: coord.y }),
-            [Dir.Right]: this.getTile({ x: coord.x + 1, y: coord.y }),
+            [Dir.Up]: this.getTile({ tx: tile.tx, ty: tile.ty - 1 }),
+            [Dir.Down]: this.getTile({ tx: tile.tx, ty: tile.ty + 1 }),
+            [Dir.Left]: this.getTile({ tx: tile.tx - 1, ty: tile.ty }),
+            [Dir.Right]: this.getTile({ tx: tile.tx + 1, ty: tile.ty }),
         };
     }
 
-    isWall(coord: Coordinate): boolean {
+    isWall(coord: TileCoord): boolean {
         return this.getTile(coord) === TileType.Wall;
     }
 
-    isOneway(coord: Coordinate): boolean {
+    isOneway(coord: TileCoord): boolean {
         return this.getTile(coord) === TileType.Oneway;
     }
 
-    canMove(from: Coordinate, to: Coordinate): boolean {
+    canMove(from: TileCoord, to: TileCoord): boolean {
         if (this.isWall(to)) return false;
 
         if (this.getTile(to) === TileType.Floor) return true;
 
-        if (this.getTile(to) === TileType.Oneway) {
-            if (from.y < to.y) return false;
+        if (this.isOneway(to)) {
+            if (from.ty < to.ty) return false;
             else return true;
         }
 

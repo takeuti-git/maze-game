@@ -1,10 +1,12 @@
-import type { Coordinate } from "../../../types/coordinate.js";
+import type { PixelCoord, TileCoord } from "../../../types/coordinate.js";
 import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
 import { Entity } from "../entity.js";
-import { Dir, DIR_VECTOR, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
-import { calcCoordFromVector } from "../../coord.js";
-import { EnemyBehaviorState, EnemyPhysicalState  } from "../../../constants/enemyState.js";
+import { Dir, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
+import { calcTileCoordFromDir, isSameTile, tileCoordToCenterPixelCoord } from "../../coord.js";
+import { EnemyBehaviorState, EnemyPhysicalState } from "../../../constants/enemyState.js";
+import { TILE_SIZE } from "../../../constants/tilesize.js";
+import { COLORS } from "../../../constants/colors.js";
 
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
@@ -12,20 +14,24 @@ function getRandomDir(): Dir {
 
 export abstract class Enemy extends Entity {
 
-    protected abstract scatterCoord: Coordinate;
-    protected abstract _target: Coordinate;
-    protected abstract calcChaseTarget(world: World): Coordinate;
+    protected readonly abstract scatterCoord: TileCoord;
+    protected abstract _target: TileCoord;
+    protected abstract calcChaseTarget(world: World): TileCoord;
 
     protected physicalState: EnemyPhysicalState;
     protected behaviorState: EnemyBehaviorState;
 
     protected releaseDelay: number;
     protected elapsedInHouse: number = 0;
-    protected houseExit: Coordinate = { x: 13, y: 11 };
+    protected houseExit: TileCoord = { tx: 13, ty: 11 };
 
     private houseMoveDir: 1 | - 1 = 1;
 
-    constructor(staticMap: StaticMap, start: Coordinate, releaseDelay: number) {
+    private lastDecisionTile: TileCoord | null = null;
+
+    protected abstract _color: string;
+
+    constructor(staticMap: StaticMap, start: TileCoord, releaseDelay: number) {
         super(staticMap, start, Dir.Up);
 
         this.releaseDelay = releaseDelay;
@@ -33,8 +39,19 @@ export abstract class Enemy extends Entity {
         this.behaviorState = EnemyBehaviorState.Scatter;
     }
 
-    public get target(): Coordinate {
+    public get target(): TileCoord {
         return { ...this._target };
+    }
+
+    public get color(): string {
+        if (this.physicalState === EnemyPhysicalState.Returning) {
+            return COLORS.EATEN;
+        }
+        else if (this.behaviorState === EnemyBehaviorState.Frightened) {
+            return COLORS.FRIGHTENED;
+        }
+
+        return this._color;
     }
 
     // ====================
@@ -48,48 +65,45 @@ export abstract class Enemy extends Entity {
 
         console.log(`${this.color} set state: ${EnemyBehaviorState[state]}`);
 
+        // Scatter <-> Chase の切り替わり時には進行方向を必ず逆にする
         if (
+            this.physicalState !== EnemyPhysicalState.Returning &&
             state === EnemyBehaviorState.Scatter ||
             state === EnemyBehaviorState.Chase
         ) {
             this.direction = OPPOSITE_DIR[this.direction];
+            this.lastDecisionTile = { ...this.tilePos };
         }
     }
 
-    // ====================
-    // Physical State Update
-    // ====================
-
-    protected updatePhysicalState() {
-        switch (this.physicalState) {
-
-            case EnemyPhysicalState.InHouse:
-                this.updateInHouse();
-                break;
-
-            case EnemyPhysicalState.LeavingHouse:
-                this.updateLeavingHouse();
-                break;
-
-            case EnemyPhysicalState.Active:
-                // 何もしない
-                break;
-
-            case EnemyPhysicalState.Returning:
-                this.updateReturning();
-                break;
-        }
+    public enterFrightened() {
+        this.setBehaviorState(EnemyBehaviorState.Frightened);
     }
 
-    private updateInHouse(): void {
-        this.elapsedInHouse += 160; // same as gameTick
+    public exitFrightened(resumeMode: EnemyBehaviorState) {
+        this.setBehaviorState(resumeMode);
+    }
 
-        this.coord.y += this.houseMoveDir;
+    // ====================
+    // Physical State
+    // ====================
 
-        if (this.willHitWall(
-            this.coord,
-            { x: this.coord.x, y: this.coord.y + this.houseMoveDir }
-        )) {
+    public setPhysicalState(state: EnemyPhysicalState): void {
+        if (this.physicalState === state) return;
+
+        this.physicalState = state;
+    }
+
+    private updateInHouse(delta: number): void {
+        this.elapsedInHouse += delta;
+
+        const SPEED = 20; // house内限定の移動速度
+        this.pos.py += this.houseMoveDir * SPEED * delta;
+
+        const { center } = this.getCurrentTile();
+
+        const RANGE = TILE_SIZE / 2 - 1;
+        if (Math.abs(this.pos.py - center.cy) > RANGE) {
             this.houseMoveDir *= -1;
         }
 
@@ -98,38 +112,27 @@ export abstract class Enemy extends Entity {
         }
     }
 
-    private updateLeavingHouse(): void {
-        const dx = this.houseExit.x - this.coord.x;
-        const dy = this.houseExit.y - this.coord.y;
+    private updateLeavingHouse(delta: number): void {
+        const exitPx = tileCoordToCenterPixelCoord(this.houseExit);
+        const dx = exitPx.px - this.pos.px;
+        const dy = exitPx.py - this.pos.py;
+        const EPS = 1;
 
-        if (dx === 0 && dy === 0) {
+        if (Math.abs(dx) < EPS && Math.abs(dy) < EPS) {
+            this.pos.px = exitPx.px;
+            this.pos.py = exitPx.py;
             this.physicalState = EnemyPhysicalState.Active;
             return;
         }
 
-        if (dx !== 0) {
-            this.coord.x += Math.sign(dx);
-        } else {
-            this.coord.y += Math.sign(dy);
+        if (Math.abs(dx) > EPS) {
+            this.direction = dx > 0 ? Dir.Right : Dir.Left;
         }
-    }
-
-    private updateReturning(): void {
-        const dx = this.houseExit.x - this.coord.x;
-        const dy = this.houseExit.y - this.coord.y;
-
-        if (dx === 0 && dy === 0) {
-            this.elapsedInHouse = 0;
-            this.physicalState = EnemyPhysicalState.InHouse;
-            this.behaviorState = EnemyBehaviorState.Scatter;
-            return;
+        else {
+            this.direction = dy > 0 ? Dir.Down : Dir.Up;
         }
 
-        if (dy !== 0) {
-            this.coord.y += Math.sign(dy);
-        } else {
-            this.coord.x += Math.sign(dx);
-        }
+        this.move(delta);
     }
 
     // ====================
@@ -137,10 +140,14 @@ export abstract class Enemy extends Entity {
     // ====================
 
     public updateTarget(world: World): void {
-        this._target = this.decideNextTarget(world);
+        const { center } = this.getCurrentTile();
+        const onCenter = this.isOnTileCenter(center.cx, center.cy);
+        if (onCenter) {
+            this._target = this.decideNextTarget(world);
+        }
     }
 
-    private decideNextTarget(world: World): Coordinate {
+    private decideNextTarget(world: World): TileCoord {
         // 物理状態が優先
         if (
             this.physicalState === EnemyPhysicalState.InHouse ||
@@ -150,7 +157,7 @@ export abstract class Enemy extends Entity {
             return this.houseExit;
         }
 
-        // Activeの時のみ行動AIを使う
+        // Active時のみ行動AIを使う
         switch (this.behaviorState) {
             case EnemyBehaviorState.Scatter:
                 return this.scatterCoord;
@@ -162,7 +169,7 @@ export abstract class Enemy extends Entity {
                 return this.randomNeighbor();
 
             default:
-                return this.coord;
+                return this.tilePos;
         }
     }
 
@@ -170,14 +177,11 @@ export abstract class Enemy extends Entity {
     // Movement (Active only)
     // ====================
 
-    private getDirCandidates(): Dir[] {
+    private getDirCandidates(currentTile: TileCoord): Dir[] {
         // 壁に当たらず進行方向と逆以外のDIR配列を返す
         const filtered = ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
-            return !this.willHitWall(
-                this.coord,
-                calcCoordFromVector(this.coord, DIR_VECTOR[dir])
-            );
+            return this.canMoveToDir(currentTile, dir);
         });
 
         return filtered.length > 0
@@ -185,16 +189,16 @@ export abstract class Enemy extends Entity {
             : [OPPOSITE_DIR[this.direction]] // 候補がない(行き止まり)なら逆走を許す
     }
 
-    private chooseDirection(): Dir {
-        const candidates = this.getDirCandidates();
+    private chooseBestDir(currentTile: TileCoord): Dir {
+        const candidates = this.getDirCandidates(currentTile);
 
         let bestDir = candidates[0] as Dir;
         let minDist = Infinity;
 
         for (const dir of candidates) {
-            const next = calcCoordFromVector(this.coord, DIR_VECTOR[dir]);
-            const dx = next.x - this.target.x;
-            const dy = next.y - this.target.y;
+            const next = calcTileCoordFromDir(currentTile, dir);
+            const dx = next.tx - this.target.tx;
+            const dy = next.ty - this.target.ty;
             const dist = dx * dx + dy * dy;
 
             if (dist < minDist) {
@@ -205,24 +209,92 @@ export abstract class Enemy extends Entity {
         return bestDir;
     }
 
-    public move() {
-        if (this.physicalState !== EnemyPhysicalState.Active) {
-            this.updatePhysicalState();
+    public update(delta: number) {
+        switch (this.physicalState) {
+            case EnemyPhysicalState.InHouse:
+                this.updateInHouse(delta);
+                return
+
+            case EnemyPhysicalState.LeavingHouse:
+                this.updateLeavingHouse(delta);
+                return;
+
+            case EnemyPhysicalState.Returning:
+            case EnemyPhysicalState.Active:
+                this.updateActive(delta);
+                return;
+        }
+    }
+
+    private updateActive(delta: number): void {
+        this.updateSpeed();
+
+        if (this.physicalState === EnemyPhysicalState.Returning) {
+            this._target = this.houseExit;
+        }
+
+        this.updateDirectionIfNeeded();
+        this.move(delta);
+    }
+
+    private updateSpeed(): void {
+        if (this.physicalState === EnemyPhysicalState.Returning) {
+            this.speed = 100;
             return;
         }
 
-        this.updatePhysicalState();
-        this.direction = this.chooseDirection();
-        this.coord = calcCoordFromVector(this.coord, DIR_VECTOR[this.direction]);
-        this.wrapMovement();
+        switch (this.behaviorState) {
+            case EnemyBehaviorState.Frightened:
+                this.speed = 30;
+                break;
+            default:
+                this.speed = this.defaultSpeed;
+        }
+    }
+
+    private updateDirectionIfNeeded(): void {
+        const { tile, center } = this.getCurrentTile();
+        const onCenter = this.isOnTileCenter(center.cx, center.cy);
+
+        if (!onCenter) return;
+        if (this.lastDecisionTile && isSameTile(tile, this.lastDecisionTile)) return;
+
+        this.direction = this.chooseBestDir(tile);
+        this.lastDecisionTile = { ...tile };
+    }
+
+    public checkReturningComplete(resumeMode: EnemyBehaviorState): void {
+        if (
+            this.physicalState === EnemyPhysicalState.Returning &&
+            isSameTile(this.tilePos, this.houseExit)
+        ) {
+            this.setPhysicalState(EnemyPhysicalState.Active);
+            this.setBehaviorState(resumeMode);
+        }
     }
 
     // ====================
     // Utilities
     // ====================
-    
-    private randomNeighbor(): Coordinate {
+
+    private randomNeighbor(): TileCoord {
         const dir = getRandomDir();
-        return calcCoordFromVector(this.coord, DIR_VECTOR[dir]);
+        return calcTileCoordFromDir(this.tilePos, dir);
+    }
+
+    public handlePlayerCollision(playerPos: PixelCoord): boolean {
+        const COLLISION_RANGE = 10; // pixel
+        const isCollided = (
+            Math.abs(playerPos.px - this.pos.px) < COLLISION_RANGE &&
+            Math.abs(playerPos.py - this.pos.py) < COLLISION_RANGE
+        );
+
+        if (this.physicalState !== EnemyPhysicalState.Active) return false;
+        if (this.behaviorState === EnemyBehaviorState.Frightened) {
+            if (isCollided) this.setPhysicalState(EnemyPhysicalState.Returning);
+            return false;
+        }
+
+        return isCollided;
     }
 }

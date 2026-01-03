@@ -1,4 +1,4 @@
-import { TileType } from "../constants/tile.js";
+import { FoodType, TileType } from "../constants/tile.js";
 
 const STR_TO_TILE_TYPE: Record<string, TileType> = {
     "#": TileType.Wall,
@@ -7,11 +7,16 @@ const STR_TO_TILE_TYPE: Record<string, TileType> = {
     "^": TileType.Oneway,
 };
 
+const STR_TO_FOOD_TYPE: Record<string, FoodType> = {
+    "'": FoodType.Normal,
+    "@": FoodType.Special,
+};
+
 const mapLayout = [
     "############################",
     "#''''''''''''##''''''''''''#",
     "#'####'#####'##'#####'####'#",
-    "#'####'#####'##'#####'####'#",
+    "#@####'#####'##'#####'####@#",
     "#'####'#####'##'#####'####'#",
     "#''''''''''''''''''''''''''#",
     "#'####'##'########'##'####'#",
@@ -31,7 +36,7 @@ const mapLayout = [
     "#''''''''''''##''''''''''''#",
     "#'####'#####'##'#####'####'#",
     "#'####'#####'##'#####'####'#",
-    "#'''##'''''''--'''''''##'''#",
+    "#@''##'''''''--'''''''##''@#",
     "###'##'##'########'##'##'###",
     "###'##'##'########'##'##'###",
     "#''''''##''''##''''##''''''#",
@@ -73,6 +78,8 @@ export const staticMapData = mapLayout.map(row =>
 
 export function getFoodMap() {
     return mapLayout.map(row =>
-        [...row].map(c => c === "'" ? true : false)
+        [...row].map(c => {
+            return STR_TO_FOOD_TYPE[c] ?? FoodType.None;
+        })
     );
 }

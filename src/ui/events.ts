@@ -1,58 +1,42 @@
-import type { Game } from "../game/game.js";
-import { KEY_TO_DIR } from "../constants/keymap.js";
+import { Dir } from "../constants/dir.js";
+
+const KEY_TO_DIR: Record<string, Dir> = {
+    ArrowUp: Dir.Up,
+    ArrowRight: Dir.Right,
+    ArrowDown: Dir.Down,
+    ArrowLeft: Dir.Left,
+};
+
 
 export class InputHandler {
-    game: Game;
-    keyStates: Set<string>;
-    isRunning: boolean;
+    currentDir: Dir | null = null;
+    currentKey: string | null = null;
 
-    constructor(game: Game) {
-        this.game = game;
-        this.keyStates = new Set();
-        this.isRunning = false;
-
+    constructor() {
         this.setupListeners();
     }
 
     setupListeners() {
         document.addEventListener("keydown", (e) => {
             if (e.repeat) return;
+
             const key = e.code;
+            if (!(key in KEY_TO_DIR)) return;
 
-            // リピート防止
-            if (this.keyStates.has(key)) return;
+            this.currentDir = KEY_TO_DIR[key] ?? null;
+            this.currentKey = key;
 
-            this.keyStates.add(key);
         });
 
         document.addEventListener("keyup", (e) => {
-            const key = e.code;
-            this.keyStates.delete(key);
+            if (e.code === this.currentKey) {
+                this.currentKey = null;
+                this.currentDir = null;
+            }
         });
     }
 
-    start() {
-        this.isRunning = true;
-        this.inputLoop();
-    }
-
-    stop() {
-        this.isRunning = false;
-    }
-
-    inputLoop() {
-        if (!this.isRunning) return;
-        this.updateGameActions();
-        requestAnimationFrame(() => this.inputLoop());
-    }
-
-    updateGameActions() {
-        for (const key of this.keyStates) {
-            const dir = KEY_TO_DIR[key];
-            if (dir != undefined) {
-                this.game.requestPlayerTurn(dir);
-                break;
-            }
-        }
+    getDir(): Dir | null {
+        return this.currentDir;
     }
 }
