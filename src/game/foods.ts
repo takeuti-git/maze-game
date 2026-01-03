@@ -1,27 +1,49 @@
-import type { Coordinate } from "../types/coordinate";
+import { FoodType } from "../constants/tile.js";
+import type { TileCoord } from "../types/coordinate";
 
 export class Foods {
-    private data: boolean[][];
+    private data: FoodType[][];
     private count: number;
 
-    constructor(data: boolean[][]) {
+    constructor(data: FoodType[][]) {
         this.data = data;
-        this.count = this.data.map(row => row.filter(Boolean)).flat().length;
+        this.count = this.data.map(row => row.filter(c => c !== FoodType.None)).flat().length;
     }
 
-    has(coord: Coordinate): boolean {
-        return !!this.data[coord.y]?.[coord.x];
+    has(tile: TileCoord): boolean {
+        // @ts-expect-error
+        return [FoodType.Normal, FoodType.Special].includes(this.data[tile.ty]?.[tile.tx]);
     }
 
-    eat(coord: Coordinate): boolean {
-        if (!this.has(coord)) return false;
+    dataAt(tile: TileCoord): FoodType {
+        // @ts-expect-error
+        return this.data[tile.ty][tile.tx];
+    }
 
-        this.data[coord.y]![coord.x] = false;
+    eat(tile: TileCoord): FoodType {
+        if (!this.has(tile)) return FoodType.None;
+
+        // @ts-expect-error
+        const tempFood = this.data[tile.ty][tile.tx] as FoodType;
+
+        // @ts-expect-error
+        this.data[tile.ty][tile.tx] = FoodType.None;
         this.count--;
-        return true;
+
+        return tempFood;
     }
 
     isEmpty(): boolean {
         return this.count <= 0;
+    }
+
+    isSpecial(tile: TileCoord): boolean {
+        // @ts-expect-error
+        return this.data[tile.ty][tile.tx] === FoodType.Special;
+    }
+
+    isNone(tile: TileCoord): boolean {
+        // @ts-expect-error
+        return this.data[tile.ty][tile.tx] === FoodType.None;
     }
 }

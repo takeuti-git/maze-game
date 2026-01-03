@@ -4,9 +4,12 @@ export const COLORS = {
     WALL_OUTLINE: "#00F",
     PLAYER: "#FF0",
     FOOD: "#AAA",
+    SPECIAL_FOOD: "#AA0",
     ONEWAY: "#FCC",
     ENEMY_1: "#F00",
     ENEMY_2: "#FAA",
     ENEMY_3: "#0FF",
     ENEMY_4: "#FA0",
+    FRIGHTENED: "#00F",
+    EATEN: "#AAAAAAAA",
 } as const;
