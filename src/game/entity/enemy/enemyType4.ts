@@ -18,13 +18,13 @@ export class EnemyType4 extends Enemy {
 
         const player = world.player;
 
-        const dx = this.tilePos.tx - player.tilePos.tx;
-        const dy = this.tilePos.ty - player.tilePos.ty;
+        const dx = this.tilePosition.tx - player.tilePosition.tx;
+        const dy = this.tilePosition.ty - player.tilePosition.ty;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist >= radius) {
             // プレイヤーの一定半径以上にいるとき
-            return player.tilePos;
+            return player.tilePosition;
         } else {
             // プレイヤーの一定半径未満にいるとき
             return this.scatterCoord;

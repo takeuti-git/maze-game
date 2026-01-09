@@ -22,6 +22,6 @@ export class EnemyType2 extends Enemy {
 
         const targetVec = { vx: playerVec.vx * offset, vy: playerVec.vy * offset };
         
-        return calcTileCoordFromVector(player.tilePos, targetVec);
+        return calcTileCoordFromVector(player.tilePosition, targetVec);
     }
 }

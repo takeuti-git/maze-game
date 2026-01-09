@@ -12,7 +12,7 @@ export abstract class Entity {
     protected readonly defaultSpeed = this.speed;
 
     protected pos: PixelCoord;
-    public tilePos: TileCoord;
+    protected tilePos: TileCoord;
     protected direction: Dir;
 
     protected readonly staticMap: StaticMap;
@@ -27,6 +27,10 @@ export abstract class Entity {
 
     public get position(): PixelCoord {
         return { ...this.pos };
+    }
+
+    public get tilePosition(): TileCoord {
+        return { ...this.tilePos}
     }
 
     public get dir(): Dir {

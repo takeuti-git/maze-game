@@ -12,7 +12,7 @@ export class World {
 
     get enemy1Position(): TileCoord {
         if (this.enemies[0]) {
-            return this.enemies[0].tilePos;
+            return this.enemies[0].tilePosition;
         }
 
         throw new Error("couldn't find enemy Type1");

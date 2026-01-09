@@ -14,6 +14,6 @@ export class EnemyType1 extends Enemy {
     }
 
     protected calcChaseTarget(world: World): TileCoord {
-        return world.player.tilePos;
+        return world.player.tilePosition;
     }
 }

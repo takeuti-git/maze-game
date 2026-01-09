@@ -22,7 +22,7 @@ export class EnemyType3 extends Enemy {
         const enemy1Position = world.enemy1Position;
 
         const offsetVec = { vx: playerVec.vx * offset, vy: playerVec.vy * offset };
-        const offsetCoord = calcTileCoordFromVector(player.tilePos, offsetVec);
+        const offsetCoord = calcTileCoordFromVector(player.tilePosition, offsetVec);
 
         return calcOppositeTileCoord(offsetCoord, enemy1Position);
     }
