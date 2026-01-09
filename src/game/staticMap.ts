@@ -3,16 +3,24 @@ import { TileType } from "../constants/tile.js";
 import type { TileCoord } from "../types/coordinate.js";
 
 export class StaticMap {
-    public readonly data: TileType[][];
-    public readonly width: number;
-    public readonly height: number;
+    private readonly data: TileType[][];
+    private readonly _width: number;
+    private readonly _height: number;
 
     constructor(data: TileType[][]) {
         this.data = data;
         if (!data[0]) throw new Error("invalid data for static map");
 
-        this.width = data[0]?.length;
-        this.height = data.length;
+        this._width = data[0]?.length;
+        this._height = data.length;
+    }
+
+    public get width(): number {
+        return this._width;
+    }
+
+    public get height(): number {
+        return this._height;
     }
 
     getTile(tile: TileCoord): TileType | undefined {

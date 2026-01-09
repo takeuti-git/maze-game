@@ -5,7 +5,7 @@ import { COLORS } from "../../../constants/colors.js";
 import type { TileCoord } from "../../../types/coordinate.js";
 
 export class EnemyType4 extends Enemy {
-    protected scatterCoord = { tx: 0, ty: this.staticMap.height }; // 画面左下
+    protected readonly scatterCoord = { tx: 0, ty: this.staticMap.height }; // 画面左下
     protected _target = this.scatterCoord;
     protected _color: string = COLORS.ENEMY_4;
 

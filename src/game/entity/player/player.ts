@@ -17,7 +17,7 @@ export class Player extends Entity {
         this.foods = foods;
     }
 
-    public get isMoving() {
+    public get isMoving(): boolean {
         return this.moving;
     }
 

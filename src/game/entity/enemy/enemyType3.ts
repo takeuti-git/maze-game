@@ -7,7 +7,7 @@ import type { TileCoord } from "../../../types/coordinate.js";
 import { calcOppositeTileCoord, calcTileCoordFromVector } from "../../coord.js";
 
 export class EnemyType3 extends Enemy {
-    protected scatterCoord = { tx: this.staticMap.width - 1, ty: this.staticMap.height }; // 画面右下
+    protected readonly scatterCoord = { tx: this.staticMap.width - 1, ty: this.staticMap.height }; // 画面右下
     protected _target = this.scatterCoord;
     protected _color: string = COLORS.ENEMY_3;
 

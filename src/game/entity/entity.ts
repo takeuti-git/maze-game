@@ -7,6 +7,7 @@ import { TILE_SIZE } from "../../constants/tilesize.js";
 
 export abstract class Entity {
     public abstract get color(): string;
+    public abstract update(delta: number): void;
 
     protected speed: number = 45;
     protected readonly defaultSpeed = this.speed;
@@ -71,8 +72,6 @@ export abstract class Entity {
         this.tilePos = this.getCurrentTile().tile;
         this.wrapMovement();
     }
-
-    abstract update(delta: number): void;
 
     private wrapMovement(): void {
         // マップの端から端までの瞬間移動

@@ -1,4 +1,4 @@
-import type { Entity, Enemy } from "./entity/index.js";
+import type { Enemy } from "./entity/index.js";
 
 import { Player, EnemyType1, EnemyType2, EnemyType3, EnemyType4 } from "./entity/index.js";
 import { StaticMap } from "./staticMap.js";
@@ -69,15 +69,15 @@ export class Game {
         requestAnimationFrame(() => this.gameLoop());
     }
 
-    private updateWorld(): World {
+    private getWorldInstance(): World {
         return new World(
             this.player,
             this.enemies,
-        )
+        );
     }
 
     private tick(delta: number) {
-        const world = this.updateWorld();
+        const world = this.getWorldInstance();
 
         if (this.isPowerUpActive) {
             this.powerUpTimer -= delta;
