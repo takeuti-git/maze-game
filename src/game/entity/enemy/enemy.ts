@@ -98,12 +98,12 @@ export abstract class Enemy extends Entity {
         this.elapsedInHouse += delta;
 
         const SPEED = 20; // house内限定の移動速度
-        this.pos.py += this.houseMoveDir * SPEED * delta;
+        this.pixelPos.py += this.houseMoveDir * SPEED * delta;
 
         const { center } = this.getCurrentTile();
 
         const RANGE = TILE_SIZE / 2 - 1;
-        if (Math.abs(this.pos.py - center.cy) > RANGE) {
+        if (Math.abs(this.pixelPos.py - center.cy) > RANGE) {
             this.houseMoveDir *= -1;
         }
 
@@ -114,13 +114,13 @@ export abstract class Enemy extends Entity {
 
     private updateLeavingHouse(delta: number): void {
         const exitPx = tileCoordToCenterPixelCoord(this.houseExit);
-        const dx = exitPx.px - this.pos.px;
-        const dy = exitPx.py - this.pos.py;
+        const dx = exitPx.px - this.pixelPos.px;
+        const dy = exitPx.py - this.pixelPos.py;
         const EPS = 1;
 
         if (Math.abs(dx) < EPS && Math.abs(dy) < EPS) {
-            this.pos.px = exitPx.px;
-            this.pos.py = exitPx.py;
+            this.pixelPos.px = exitPx.px;
+            this.pixelPos.py = exitPx.py;
             this.physicalState = EnemyPhysicalState.Active;
             return;
         }
@@ -285,8 +285,8 @@ export abstract class Enemy extends Entity {
     public handlePlayerCollision(playerPos: PixelCoord): boolean {
         const COLLISION_RANGE = 10; // pixel
         const isCollided = (
-            Math.abs(playerPos.px - this.pos.px) < COLLISION_RANGE &&
-            Math.abs(playerPos.py - this.pos.py) < COLLISION_RANGE
+            Math.abs(playerPos.px - this.pixelPos.px) < COLLISION_RANGE &&
+            Math.abs(playerPos.py - this.pixelPos.py) < COLLISION_RANGE
         );
 
         if (this.physicalState !== EnemyPhysicalState.Active) return false;

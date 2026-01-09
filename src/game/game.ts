@@ -125,7 +125,7 @@ export class Game {
 
         this.enemies.forEach(e => e.update(delta));
 
-        if (this.enemies.some(e => e.handlePlayerCollision(this.player.position))) {
+        if (this.enemies.some(e => e.handlePlayerCollision(this.player.pixelPosition))) {
             this.stop();
         }
 
@@ -136,10 +136,10 @@ export class Game {
 
     public render() {
         this.renderer.drawWorld(this.map, this.foods);
-        this.renderer.drawPlayer(this.player.position, this.player.dir, this.player.isMoving, this.deltaTime);
+        this.renderer.drawPlayer(this.player.pixelPosition, this.player.dir, this.player.isMoving, this.deltaTime);
 
         this.enemies.forEach(e => {
-            this.renderer.drawEnemy(e.position, e.color);
+            this.renderer.drawEnemy(e.pixelPosition, e.color);
             this.renderer.drawTargetPosition(e.target, e.color);
         });
     }

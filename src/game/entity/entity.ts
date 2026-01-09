@@ -11,7 +11,7 @@ export abstract class Entity {
     protected speed: number = 45;
     protected readonly defaultSpeed = this.speed;
 
-    protected pos: PixelCoord;
+    protected pixelPos: PixelCoord;
     protected tilePos: TileCoord;
     protected direction: Dir;
 
@@ -21,16 +21,16 @@ export abstract class Entity {
         this.staticMap = staticMap;
 
         this.tilePos = startTile;
-        this.pos = tileCoordToCenterPixelCoord(startTile);
+        this.pixelPos = tileCoordToCenterPixelCoord(startTile);
         this.direction = dir;
     }
 
-    public get position(): PixelCoord {
-        return { ...this.pos };
+    public get pixelPosition(): PixelCoord {
+        return { ...this.pixelPos };
     }
 
     public get tilePosition(): TileCoord {
-        return { ...this.tilePos}
+        return { ...this.tilePos };
     }
 
     public get dir(): Dir {
@@ -38,7 +38,7 @@ export abstract class Entity {
     }
 
     protected getCurrentTile() {
-        const tile = pixelCoordToTileCoord(this.pos);
+        const tile = pixelCoordToTileCoord(this.pixelPos);
         const center = {
             cx: tile.tx * TILE_SIZE + TILE_SIZE / 2,
             cy: tile.ty * TILE_SIZE + TILE_SIZE / 2,
@@ -49,8 +49,8 @@ export abstract class Entity {
     protected isOnTileCenter(centerX: number, centerY: number): boolean {
         const EPS = 1;
         return (
-            Math.abs(this.pos.px - centerX) < EPS &&
-            Math.abs(this.pos.py - centerY) < EPS
+            Math.abs(this.pixelPos.px - centerX) < EPS &&
+            Math.abs(this.pixelPos.py - centerY) < EPS
         );
     }
 
@@ -65,8 +65,8 @@ export abstract class Entity {
 
     protected move(delta: number): void {
         const vec = DIR_VECTOR[this.dir];
-        this.pos.px += vec.vx * this.speed * delta;
-        this.pos.py += vec.vy * this.speed * delta;
+        this.pixelPos.px += vec.vx * this.speed * delta;
+        this.pixelPos.py += vec.vy * this.speed * delta;
 
         this.tilePos = this.getCurrentTile().tile;
         this.wrapMovement();
@@ -79,9 +79,9 @@ export abstract class Entity {
         const minXY = 0
         const maxX = (this.staticMap.width - 1) * TILE_SIZE;
         const maxY = (this.staticMap.height - 1) * TILE_SIZE;
-        if (this.pos.px < minXY) this.pos.px = maxX;
-        else if (this.pos.px > maxX) this.pos.px = minXY;
-        else if (this.pos.py < minXY) this.pos.py = maxY;
-        else if (this.pos.py > maxY) this.pos.py = minXY;
+        if (this.pixelPos.px < minXY) this.pixelPos.px = maxX;
+        else if (this.pixelPos.px > maxX) this.pixelPos.px = minXY;
+        else if (this.pixelPos.py < minXY) this.pixelPos.py = maxY;
+        else if (this.pixelPos.py > maxY) this.pixelPos.py = minXY;
     }
 }

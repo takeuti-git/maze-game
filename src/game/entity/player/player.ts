@@ -69,8 +69,8 @@ export class Player extends Entity {
 
     protected snapToCenter(cx: number, cy: number) {
         const v = DIR_VECTOR[this.dir];
-        if (v.vx !== 0) this.pos.py = cy;
-        if (v.vy !== 0) this.pos.px = cx;
+        if (v.vx !== 0) this.pixelPos.py = cy;
+        if (v.vy !== 0) this.pixelPos.px = cx;
     }
 
     private handleFood(tile: TileCoord): FoodType {
