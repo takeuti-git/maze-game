@@ -12,6 +12,11 @@ function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
 }
 
+function getRandomNeighborTile(currentTile: TileCoord): TileCoord {
+    const dir = getRandomDir();
+    return calcTileCoordFromDir(currentTile, dir);
+}
+
 export abstract class Enemy extends Entity {
 
     protected readonly abstract scatterCoord: TileCoord;
@@ -166,7 +171,7 @@ export abstract class Enemy extends Entity {
                 return this.calcChaseTarget(world);
 
             case EnemyBehaviorState.Frightened:
-                return this.randomNeighbor();
+                return getRandomNeighborTile(this.tilePos);
 
             default:
                 return this.tilePos;
@@ -276,11 +281,6 @@ export abstract class Enemy extends Entity {
     // ====================
     // Utilities
     // ====================
-
-    private randomNeighbor(): TileCoord {
-        const dir = getRandomDir();
-        return calcTileCoordFromDir(this.tilePos, dir);
-    }
 
     public handlePlayerCollision(playerPos: PixelCoord): boolean {
         const COLLISION_RANGE = 10; // pixel
