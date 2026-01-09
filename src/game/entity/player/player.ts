@@ -25,11 +25,11 @@ export class Player extends Entity {
         return COLORS.PLAYER;
     }
 
-    setDir(dir: Dir) {
+    public setDir(dir: Dir) {
         this.inputDir = dir;
     }
 
-    update(delta: number): { type: string } | null {
+    public update(delta: number): { type: string } | null {
         this.moving = false;
 
         const { tile, center } = this.getCurrentTile();
@@ -54,7 +54,7 @@ export class Player extends Entity {
         return null;
     }
 
-    tryChangeDirection(tile: TileCoord): boolean {
+    private tryChangeDirection(tile: TileCoord): boolean {
         if (this.inputDir === null) return false;
 
         if (this.canMoveToDir(tile, this.inputDir)) {
