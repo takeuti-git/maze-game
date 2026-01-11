@@ -12,6 +12,10 @@ export class Player extends Entity {
 
     private inputDir: Dir | null = this.dir;
 
+    public isPowerUpActive: boolean = false;
+    private readonly POWER_UP_TIME = 14;
+    private powerUpTimer = 0;
+
     constructor(startTile: TileCoord, staticMap: StaticMap, foods: Foods) {
         super(staticMap, startTile, Dir.Up)
         this.foods = foods;
@@ -31,6 +35,7 @@ export class Player extends Entity {
 
     public update(delta: number): { type: string } | null {
         this.moving = false;
+        if (this.isPowerUpActive) this.powerUpTimer -= delta;
 
         const { tile, center } = this.getCurrentTile();
 
@@ -38,7 +43,7 @@ export class Player extends Entity {
             this.snapToCenter(center.cx, center.cy);
         }
 
-        const onCenter = this.isOnTileCenter(center.cx, center.cy);
+        const onCenter = this.isOnTileCenter();
         if (onCenter && !this.canMoveToDir(tile, this.dir)) {
             return null;
         }
@@ -48,7 +53,13 @@ export class Player extends Entity {
 
         const food = this.handleFood(this.getCurrentTile().tile);
         if (food === FoodType.Special) {
+            this.enablePowerUp();
             return { type: "PLAYER_POWER_UP" };
+        }
+
+        if (this.isPowerUpActive && this.powerUpTimer <= 0) {
+            this.disablePowerUp();
+            return { type: "PLAYER_POWER_UP_END" };
         }
 
         return null;
@@ -67,7 +78,7 @@ export class Player extends Entity {
         }
     }
 
-    protected snapToCenter(cx: number, cy: number) {
+    private snapToCenter(cx: number, cy: number) {
         const v = DIR_VECTOR[this.dir];
         if (v.vx !== 0) this.pixelPos.py = cy;
         if (v.vy !== 0) this.pixelPos.px = cx;
@@ -79,10 +90,19 @@ export class Player extends Entity {
         if (food === FoodType.None) {
             this.speed = this.defaultSpeed;
         } else {
-            this.speed = 0; // 食べた1フレームだけ動きが止まる(原作要素)
+            this.speed = 0; // 食べた1フレームだけ動きが止まる
         }
 
         return food;
     }
 
+    private enablePowerUp(): void {
+        this.isPowerUpActive = true;
+        this.powerUpTimer = this.POWER_UP_TIME;
+    }
+
+    private disablePowerUp(): void {
+        this.isPowerUpActive = false;
+        this.powerUpTimer = 0;
+    }
 }

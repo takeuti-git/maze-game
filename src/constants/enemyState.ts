@@ -2,7 +2,6 @@ export enum EnemyPhysicalState {
     InHouse,
     LeavingHouse,
     Active,
-    Returning
 }
 
 export enum EnemyBehaviorState {

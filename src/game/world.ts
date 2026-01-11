@@ -1,4 +1,4 @@
-import { EnemyBehaviorState } from "../constants/enemyState.js";
+import type { EnemyBehaviorState } from "../constants/enemyState";
 import type { TileCoord } from "../types/coordinate";
 import type { Enemy, Player } from "./entity/index";
 
@@ -6,6 +6,7 @@ export class World {
     constructor(
         public readonly player: Player,
         public readonly enemies: readonly Enemy[],
+        public readonly currentBehaviorState: EnemyBehaviorState,
         // public readonly staticMap: StaticMap,
         // public readonly foods: Foods,
     ) { }
@@ -16,17 +17,5 @@ export class World {
         }
 
         throw new Error("couldn't find enemy Type1");
-    }
-
-    onPlayerPowerUp() {
-        for (const enemy of this.enemies) {
-            enemy.setBehaviorState(EnemyBehaviorState.Frightened);
-        }
-
-        setTimeout(() => {
-            for (const enemy of this.enemies) {
-                enemy.setBehaviorState(EnemyBehaviorState.Chase);
-            }
-        }, 5000);
     }
 }

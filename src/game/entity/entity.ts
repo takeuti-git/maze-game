@@ -3,11 +3,12 @@ import type { StaticMap } from "../staticMap.js";
 import { DIR_VECTOR, type Dir } from "../../constants/dir.js";
 import { pixelCoordToTileCoord, tileCoordToCenterPixelCoord } from "../coord.js";
 import { TILE_SIZE } from "../../constants/tilesize.js";
+import type { World } from "../world";
 
 
 export abstract class Entity {
     public abstract get color(): string;
-    public abstract update(delta: number): void;
+    public abstract update(delta: number, world?: World): void;
 
     protected speed: number = 45;
     protected readonly defaultSpeed = this.speed;
@@ -38,6 +39,13 @@ export abstract class Entity {
         return this.direction;
     }
 
+    protected collideEntity(other: Entity, range: number): boolean {
+        return (
+            Math.abs(this.pixelPos.px - other.pixelPos.px) < range &&
+            Math.abs(this.pixelPos.py - other.pixelPos.py) < range
+        );
+    }
+
     protected getCurrentTile() {
         const tile = pixelCoordToTileCoord(this.pixelPos);
         const center = {
@@ -47,7 +55,11 @@ export abstract class Entity {
         return { tile, center };
     }
 
-    protected isOnTileCenter(centerX: number, centerY: number): boolean {
+    protected isOnTileCenter(): boolean {
+        const { center } = this.getCurrentTile();
+        const centerX = center.cx;
+        const centerY = center.cy;
+
         const EPS = 1;
         return (
             Math.abs(this.pixelPos.px - centerX) < EPS &&
@@ -75,12 +87,12 @@ export abstract class Entity {
 
     private wrapMovement(): void {
         // マップの端から端までの瞬間移動
-        const minXY = 0
+        const min = 0;
         const maxX = (this.staticMap.width - 1) * TILE_SIZE;
         const maxY = (this.staticMap.height - 1) * TILE_SIZE;
-        if (this.pixelPos.px < minXY) this.pixelPos.px = maxX;
-        else if (this.pixelPos.px > maxX) this.pixelPos.px = minXY;
-        else if (this.pixelPos.py < minXY) this.pixelPos.py = maxY;
-        else if (this.pixelPos.py > maxY) this.pixelPos.py = minXY;
+        if (this.pixelPos.px < min) this.pixelPos.px = maxX;
+        else if (this.pixelPos.px > maxX) this.pixelPos.px = min;
+        else if (this.pixelPos.py < min) this.pixelPos.py = maxY;
+        else if (this.pixelPos.py > maxY) this.pixelPos.py = min;
     }
 }
