@@ -6,13 +6,19 @@ import { Dir, DIR_VECTOR } from "../../../constants/dir.js";
 import { COLORS } from "../../../constants/colors.js";
 import { FoodType } from "../../../constants/tile.js";
 
+
+type PlayerEvent =
+    | { type: "PLAYER_POWER_UP" }
+    | { type: "PLAYER_POWER_UP_END" }
+    | null;
+
 export class Player extends Entity {
     private moving = false;
     private readonly foods: Foods;
 
     private inputDir: Dir | null = this.dir;
 
-    public isPowerUpActive: boolean = false;
+    public isPowerUpActive = false;
     private readonly POWER_UP_TIME = 14;
     private powerUpTimer = 0;
 
@@ -51,18 +57,12 @@ export class Player extends Entity {
         this.moving = true;
         this.move(delta);
 
-        const food = this.handleFood(this.getCurrentTile().tile);
-        if (food === FoodType.Special) {
-            this.enablePowerUp();
-            return { type: "PLAYER_POWER_UP" };
-        }
-
         if (this.isPowerUpActive && this.powerUpTimer <= 0) {
             this.disablePowerUp();
             return { type: "PLAYER_POWER_UP_END" };
         }
 
-        return null;
+        return this.handleFood(this.tilePos);
     }
 
     private tryChangeDirection(tile: TileCoord): boolean {
@@ -71,29 +71,34 @@ export class Player extends Entity {
         if (this.canMoveToDir(tile, this.inputDir)) {
             this.direction = this.inputDir;
             return true;
-
-        } else {
-            this.inputDir = null;
-            return false;
         }
+
+        this.inputDir = null;
+        return false;
     }
 
     private snapToCenter(cx: number, cy: number) {
-        const v = DIR_VECTOR[this.dir];
-        if (v.vx !== 0) this.pixelPos.py = cy;
-        if (v.vy !== 0) this.pixelPos.px = cx;
+        const vec = DIR_VECTOR[this.dir];
+        if (vec.vx !== 0) this.pixelPos.py = cy;
+        if (vec.vy !== 0) this.pixelPos.px = cx;
     }
 
-    private handleFood(tile: TileCoord): FoodType {
+    private handleFood(tile: TileCoord): PlayerEvent {
         const food = this.foods.eat(tile);
 
-        if (food === FoodType.None) {
-            this.speed = this.defaultSpeed;
-        } else {
-            this.speed = 0; // 食べた1フレームだけ動きが止まる
+        switch (food) {
+            case FoodType.None:
+                this.speed = this.defaultSpeed;
+                return null;
+            case FoodType.Special:
+                this.enablePowerUp();
+                // fall through
+            case FoodType.Normal:
+                this.speed = 0; // 食べたフレームだけ停止
+                return food === FoodType.Special
+                    ? { type: "PLAYER_POWER_UP" }
+                    : null;
         }
-
-        return food;
     }
 
     private enablePowerUp(): void {

@@ -93,16 +93,20 @@ export class Game {
         }
 
         const event = this.player.update(delta);
-        if (event?.type === "PLAYER_POWER_UP") {
-            this.enemies.forEach(e => e.setBehaviorState(EnemyBehaviorState.Frightened));
 
-        } else if (event?.type === "PLAYER_POWER_UP_END") {
-            const mode = this.getCurrentState();
-            this.enemies.forEach(e => {
-                // 帰還状態では状態を上書きしない
-                if (e.behaviorState === EnemyBehaviorState.Eaten) return;
-                e.setBehaviorState(mode);
-            });
+        switch (event?.type) {
+            case "PLAYER_POWER_UP":
+                this.enemies.forEach(e => e.setBehaviorState(EnemyBehaviorState.Frightened));
+                break;
+            
+            case "PLAYER_POWER_UP_END":
+                const mode = this.getCurrentState();
+                this.enemies.forEach(e => {
+                    // 帰還状態では状態を上書きしない
+                    if (e.behaviorState === EnemyBehaviorState.Eaten) return;
+                    e.setBehaviorState(mode);
+                });
+                break;
         }
 
         this.enemies.forEach(e => {

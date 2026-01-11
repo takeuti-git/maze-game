@@ -3,47 +3,43 @@ import type { TileCoord } from "../types/coordinate";
 
 export class Foods {
     private data: FoodType[][];
-    private count: number;
+    private remaining: number;
 
     constructor(data: FoodType[][]) {
         this.data = data;
-        this.count = this.data.map(row => row.filter(c => c !== FoodType.None)).flat().length;
+
+        // Noneではない配列要素数を計算
+        this.remaining = this.data.map(row => row.filter(c => c !== FoodType.None)).flat().length;
     }
 
-    has(tile: TileCoord): boolean {
-        // @ts-expect-error
-        return [FoodType.Normal, FoodType.Special].includes(this.data[tile.ty]?.[tile.tx]);
+    public get(tile: TileCoord): FoodType {
+        return this.data[tile.ty]?.[tile.tx] ?? FoodType.None;
     }
 
-    dataAt(tile: TileCoord): FoodType {
-        // @ts-expect-error
-        return this.data[tile.ty][tile.tx];
+    public has(tile: TileCoord): boolean {
+        const food = this.get(tile);
+        return food === FoodType.Normal || food === FoodType.Special;
     }
 
-    eat(tile: TileCoord): FoodType {
-        if (!this.has(tile)) return FoodType.None;
-
-        // @ts-expect-error
-        const tempFood = this.data[tile.ty][tile.tx] as FoodType;
-
-        // @ts-expect-error
-        this.data[tile.ty][tile.tx] = FoodType.None;
-        this.count--;
-
-        return tempFood;
+    public isEmpty(): boolean {
+        return this.remaining === 0;
     }
 
-    isEmpty(): boolean {
-        return this.count <= 0;
+    public isSpecial(tile: TileCoord): boolean {
+        return this.get(tile) === FoodType.Special;
     }
 
-    isSpecial(tile: TileCoord): boolean {
-        // @ts-expect-error
-        return this.data[tile.ty][tile.tx] === FoodType.Special;
+    public isNone(tile: TileCoord): boolean {
+        return this.get(tile) === FoodType.None;
     }
 
-    isNone(tile: TileCoord): boolean {
-        // @ts-expect-error
-        return this.data[tile.ty][tile.tx] === FoodType.None;
+    public eat(tile: TileCoord): FoodType {
+        const food = this.get(tile);
+        if (food === FoodType.None) return FoodType.None;
+
+        this.data[tile.ty]![tile.tx] = FoodType.None;
+        this.remaining--;
+
+        return food;
     }
 }
