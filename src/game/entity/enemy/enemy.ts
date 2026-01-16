@@ -1,12 +1,12 @@
 import type { TileCoord } from "../../../types/coordinate.js";
 import type { StaticMap } from "../../staticMap.js";
 import type { World } from "../../world.js";
+import type { Player } from "../player/player.js";
 import { Entity } from "../entity.js";
 import { Dir, OPPOSITE_DIR, ALL_DIRS } from "../../../constants/dir.js";
 import { calcTileCoordFromDir, isSameTile, tileCoordToCenterPixelCoord } from "../../coord.js";
 import { EnemyBehaviorState, EnemyPhysicalState } from "../../../constants/enemyState.js";
 import { COLORS } from "../../../constants/colors.js";
-import type { Player } from "../player/player.js";
 
 const COLLISION_RANGE_PX = 10;
 const HOUSE_VERTICAL_MIN_PX = 280;
@@ -34,14 +34,13 @@ export abstract class Enemy extends Entity {
     protected abstract _target: TileCoord;
     protected abstract calcChaseTarget(world: World): TileCoord;
 
-    protected physicalState: EnemyPhysicalState = EnemyPhysicalState.InHouse;
-    public behaviorState: EnemyBehaviorState = EnemyBehaviorState.Scatter;
+    private physicalState: EnemyPhysicalState = EnemyPhysicalState.InHouse;
+    private behaviorState: EnemyBehaviorState = EnemyBehaviorState.Scatter;
 
-    protected releaseDelay: number;
-    protected elapsedInHouse: number = 0;
-    protected houseExit: TileCoord = { tx: 13, ty: 11 };
+    private releaseDelay: number;
+    private elapsedInHouse: number = 0;
+    private houseExit: TileCoord = { tx: 13, ty: 11 };
 
-    private houseMoveDir: 1 | - 1 = 1;
     private lastDecisionTile: TileCoord | null = null;
 
     constructor(staticMap: StaticMap, start: TileCoord, releaseDelay: number) {
@@ -49,11 +48,11 @@ export abstract class Enemy extends Entity {
         this.releaseDelay = releaseDelay;
     }
 
-    public get target(): TileCoord {
+    get target(): TileCoord {
         return { ...this._target };
     }
 
-    public get color(): string {
+    get color(): string {
         if (this.behaviorState === EnemyBehaviorState.Eaten) return COLORS.EATEN;
         else if (this.behaviorState === EnemyBehaviorState.Frightened) return COLORS.FRIGHTENED;
         return this._color;
@@ -61,27 +60,30 @@ export abstract class Enemy extends Entity {
 
     /**
      * 1. 状態に応じて移動速度を変更する
-     * 2. 移動する
-     * 3. ターゲットを更新する
-     * 4. 帰還状態なら通常状態への切り替わりをチェックする
+     * 2. 状態に応じて内部情報を変更する
+     * 3. 移動する
+     * 4. ターゲットを更新する
+     * 5. 帰還状態なら通常状態への切り替わりをチェックする
      */
     public update(delta: number, world: World) {
         this.updateSpeed();
 
         switch (this.physicalState) {
             case EnemyPhysicalState.InHouse:
-                this.updateInHouse(delta);
+                this.updateInHouse();
+                this.elapsedInHouse += delta;
                 break;
 
             case EnemyPhysicalState.LeavingHouse:
-                this.updateLeavingHouse(delta);
+                this.updateLeavingHouse();
                 break;
 
             case EnemyPhysicalState.Active:
-                this.updateActive(delta);
+                this.updateActive();
                 break;
         }
 
+        this.move(delta);
         this.updateTarget(world);
         this.checkEatenComplete(world.currentBehaviorState);
     }
@@ -99,9 +101,10 @@ export abstract class Enemy extends Entity {
 
         return isCollided;
     }
-    // ====================
-    // Behavior State
-    // ====================
+
+    public isBehaviorState(state: EnemyBehaviorState): boolean {
+        return this.behaviorState === state;
+    }
 
     public setBehaviorState(state: EnemyBehaviorState) {
         this.behaviorState = state;
@@ -111,28 +114,23 @@ export abstract class Enemy extends Entity {
             this.direction = OPPOSITE_DIR[this.direction];
             this.lastDecisionTile = { ...this.tilePos };
         }
-
-        console.debug(`${this.color} set state: ${EnemyBehaviorState[state]}`);
     }
 
-    // ====================
-    // Physical State
-    // ====================
+    // ===========================
+    // Private methods
+    // ===========================
 
-    private updateInHouse(delta: number): void {
+    private updateInHouse(): void {
         if (this.elapsedInHouse >= this.releaseDelay) {
             this.physicalState = EnemyPhysicalState.LeavingHouse;
             return;
         }
 
-        if (this.pixelPos.py < HOUSE_VERTICAL_MIN_PX) this.houseMoveDir = 1;
-        else if (this.pixelPos.py > HOUSE_VERTICAL_MAX_PX) this.houseMoveDir = -1;
-
-        this.elapsedInHouse += delta;
-        this.pixelPos.py += this.houseMoveDir * this.speed * delta;
+        if (this.pixelPos.py < HOUSE_VERTICAL_MIN_PX) this.direction = Dir.Down;
+        else if (this.pixelPos.py > HOUSE_VERTICAL_MAX_PX) this.direction = Dir.Up;
     }
 
-    private updateLeavingHouse(delta: number): void {
+    private updateLeavingHouse(): void {
         const exitPx = tileCoordToCenterPixelCoord(this.houseExit);
         const dx = exitPx.px - this.pixelPos.px;
         const dy = exitPx.py - this.pixelPos.py;
@@ -150,52 +148,77 @@ export abstract class Enemy extends Entity {
         else {
             this.direction = dy > 0 ? Dir.Down : Dir.Up;
         }
-
-        this.move(delta);
     }
 
-    private updateActive(delta: number): void {
-        const onCenter = this.isOnTileCenter();
+    private updateActive(): void {
+        if (!this.isOnTileCenter()) return;
+        if (this.lastDecisionTile && isSameTile(this.tilePos, this.lastDecisionTile)) return;
 
-        if (onCenter) this.updateDirection();
-
-        this.move(delta);
+        this.direction = this.chooseBestDir(this.tilePos);
+        this.lastDecisionTile = { ...this.tilePos };
     }
 
-    // ====================
-    // Target Decision
-    // ====================
-
-    private updateTarget(world: World): void {
-        if (this.isOnTileCenter()) return;
-        this._target = this.decideNextTarget(world);
-    }
-
-    private decideNextTarget(world: World): TileCoord {
-        // 物理状態が優先
+    private updateSpeed(): void {
         if (
             this.physicalState === EnemyPhysicalState.InHouse ||
             this.physicalState === EnemyPhysicalState.LeavingHouse
         ) {
-            return this.houseExit;
+            this.speed = SPEEDS.inHouse;
+            return;
         }
 
-        // Active時のみ行動AIを使う
         switch (this.behaviorState) {
-            case EnemyBehaviorState.Scatter:
-                return this.scatterCoord;
-
-            case EnemyBehaviorState.Chase:
-                return this.calcChaseTarget(world);
-
             case EnemyBehaviorState.Frightened:
-                return getRandomNeighborTile(this.tilePos);
-
+                this.speed = SPEEDS.frightened;
+                return;
             case EnemyBehaviorState.Eaten:
-                return this.houseExit;
-
+                this.speed = SPEEDS.eaten;
+                return;
             default:
-                return this.tilePos;
+                this.speed = this.defaultSpeed;
+                return;
+        }
+    }
+
+    private updateTarget(world: World): void {
+        if (!this.isOnTileCenter()) return;
+
+        this._target = ((): TileCoord => {
+            // 物理状態が優先
+            if (
+                this.physicalState === EnemyPhysicalState.InHouse ||
+                this.physicalState === EnemyPhysicalState.LeavingHouse
+            ) {
+                return this.houseExit;
+            }
+
+            // Active時のみ行動AIを使う
+            switch (this.behaviorState) {
+                case EnemyBehaviorState.Scatter:
+                    return this.scatterCoord;
+
+                case EnemyBehaviorState.Chase:
+                    return this.calcChaseTarget(world);
+
+                case EnemyBehaviorState.Frightened:
+                    return getRandomNeighborTile(this.tilePos);
+
+                case EnemyBehaviorState.Eaten:
+                    return this.houseExit;
+
+                default:
+                    return this.tilePos;
+            }
+        })();
+    }
+
+    private checkEatenComplete(resumeMode: EnemyBehaviorState): void {
+        if (
+            this.behaviorState === EnemyBehaviorState.Eaten &&
+            isSameTile(this.tilePos, this.houseExit)
+        ) {
+            this.physicalState = EnemyPhysicalState.Active;
+            this.setBehaviorState(resumeMode);
         }
     }
 
@@ -232,43 +255,5 @@ export abstract class Enemy extends Entity {
             }
         }
         return bestDir;
-    }
-
-    private updateSpeed(): void {
-        if (
-            this.physicalState === EnemyPhysicalState.InHouse ||
-            this.physicalState === EnemyPhysicalState.LeavingHouse
-        ) {
-            this.speed = SPEEDS.inHouse;
-            return;
-        }
-
-        switch (this.behaviorState) {
-            case EnemyBehaviorState.Frightened:
-                this.speed = SPEEDS.frightened;
-                return;
-            case EnemyBehaviorState.Eaten:
-                this.speed = SPEEDS.eaten;
-                return;
-            default:
-                this.speed = this.defaultSpeed;
-        }
-    }
-
-    private updateDirection(): void {
-        if (this.lastDecisionTile && isSameTile(this.tilePos, this.lastDecisionTile)) return;
-
-        this.direction = this.chooseBestDir(this.tilePos);
-        this.lastDecisionTile = { ...this.tilePos };
-    }
-
-    private checkEatenComplete(resumeMode: EnemyBehaviorState): void {
-        if (
-            this.behaviorState === EnemyBehaviorState.Eaten &&
-            isSameTile(this.tilePos, this.houseExit)
-        ) {
-            this.physicalState = EnemyPhysicalState.Active;
-            this.setBehaviorState(resumeMode);
-        }
     }
 }
