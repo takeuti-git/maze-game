@@ -7,7 +7,6 @@ function main() {
     const game = new Game(canvas);
 
     game.start();
-    game.render();
 }
 
 main();
