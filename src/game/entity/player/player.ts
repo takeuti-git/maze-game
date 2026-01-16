@@ -19,11 +19,11 @@ export class Player extends Entity {
     private inputDir: Dir | null = this.dir;
 
     public isPowerUpActive = false;
-    private readonly POWER_UP_TIME = 14;
+    private readonly POWER_UP_TIME = 10;
     private powerUpTimer = 0;
 
     constructor(startTile: TileCoord, staticMap: StaticMap, foods: Foods) {
-        super(staticMap, startTile, Dir.Up)
+        super(staticMap, startTile, Dir.Left);
         this.foods = foods;
     }
 

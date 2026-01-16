@@ -11,10 +11,6 @@ export function isSameTile(a: TileCoord, b: TileCoord): boolean {
     return a.tx === b.tx && a.ty === b.ty;
 }
 
-// export function isSameVector(a: Vector, b: Vector): boolean {
-//     return a.vx === b.vx && a.vy === b.vy;
-// }
-
 export function calcTileCoordFromVector(tile: TileCoord, vec: Vector): TileCoord {
     return { tx: tile.tx + vec.vx, ty: tile.ty + vec.vy };
 }

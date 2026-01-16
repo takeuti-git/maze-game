@@ -15,11 +15,11 @@ export class StaticMap {
         this._height = data.length;
     }
 
-    public get width(): number {
+    get width(): number {
         return this._width;
     }
 
-    public get height(): number {
+    get height(): number {
         return this._height;
     }
 

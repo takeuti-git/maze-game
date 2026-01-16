@@ -12,7 +12,7 @@ export class Foods {
         this.remaining = this.data.map(row => row.filter(c => c !== FoodType.None)).flat().length;
     }
 
-    public get(tile: TileCoord): FoodType {
+    private get(tile: TileCoord): FoodType {
         return this.data[tile.ty]?.[tile.tx] ?? FoodType.None;
     }
 

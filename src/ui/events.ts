@@ -9,8 +9,8 @@ const KEY_TO_DIR: Record<string, Dir> = {
 
 
 export class InputHandler {
-    currentDir: Dir | null = null;
-    currentKey: string | null = null;
+    public currentDir: Dir | null = null;
+    public currentKey: string | null = null;
 
     constructor() {
         this.setupListeners();
@@ -21,7 +21,7 @@ export class InputHandler {
             if (e.repeat) return;
 
             const key = e.code;
-            if (!(key in KEY_TO_DIR)) return;
+            // if (!(key in KEY_TO_DIR)) return;
 
             this.currentDir = KEY_TO_DIR[key] ?? null;
             this.currentKey = key;
