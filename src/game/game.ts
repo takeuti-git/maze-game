@@ -4,7 +4,7 @@ import { StaticMap } from "./staticMap.js";
 import { Foods } from "./foods.js";
 import { Renderer } from "../ui/render.js";
 import { World } from "./world.js";
-import { EnemyBehaviorState } from "../constants/enemyState.js";
+import { BehaviorState } from "../constants/enemyState.js";
 import { tileCoordFrom } from "./coord.js";
 import { getFoodMap, staticMapData } from "./mapData.js";
 import { InputHandler } from "../ui/events.js";
@@ -36,8 +36,8 @@ export class Game {
 
     private getCurrentState() {
         return this.stateIndex % 2 === 0 ?
-            EnemyBehaviorState.Scatter :
-            EnemyBehaviorState.Chase;
+            BehaviorState.Scatter :
+            BehaviorState.Chase;
     }
 
     constructor(canvas: HTMLCanvasElement) {
@@ -128,14 +128,14 @@ export class Game {
 
         switch (event?.type) {
             case "PLAYER_POWER_UP":
-                this.enemies.forEach(e => e.setBehaviorState(EnemyBehaviorState.Frightened));
+                this.enemies.forEach(e => e.setBehaviorState(BehaviorState.Frightened));
                 break;
 
             case "PLAYER_POWER_UP_END":
                 const mode = this.getCurrentState();
                 this.enemies.forEach(e => {
                     // 帰還状態では状態を上書きしない
-                    if (e.isBehaviorState(EnemyBehaviorState.Eaten)) return;
+                    if (e.isBehaviorState(BehaviorState.Eaten)) return;
                     e.setBehaviorState(mode);
                 });
                 break;

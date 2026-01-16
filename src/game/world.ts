@@ -1,4 +1,4 @@
-import type { EnemyBehaviorState } from "../constants/enemyState";
+import type { BehaviorState } from "../constants/enemyState";
 import type { TileCoord } from "../types/coordinate";
 import type { Enemy, Player } from "./entity/index";
 
@@ -6,7 +6,7 @@ export class World {
     constructor(
         public readonly player: Player,
         public readonly enemies: readonly Enemy[],
-        public readonly currentBehaviorState: EnemyBehaviorState,
+        public readonly currentBehaviorState: BehaviorState,
         // public readonly staticMap: StaticMap,
         // public readonly foods: Foods,
     ) { }

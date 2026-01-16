@@ -1,10 +1,10 @@
-export enum EnemyPhysicalState {
+export enum PhysicalState {
     InHouse,
     LeavingHouse,
     Active,
 }
 
-export enum EnemyBehaviorState {
+export enum BehaviorState {
     Scatter,        // 角に向かう
     Chase,          // 追跡
     Frightened,     // 逃走
