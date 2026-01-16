@@ -55,7 +55,7 @@ export class Renderer {
         }
         const { cx, cy } = { cx: coord.px, cy: coord.py };
         const MAX_MOUTH = Math.PI / 2;
-        const mouthSpeed = 16;
+        const mouthSpeed = 50;
         const t = (Math.sin(this.mouthTime * mouthSpeed) + 1) / 2;
 
         const mouthAngle = MAX_MOUTH * t;

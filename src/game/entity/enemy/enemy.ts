@@ -13,6 +13,13 @@ const HOUSE_VERTICAL_MIN_PX = 280;
 const HOUSE_VERTICAL_MAX_PX = 330;
 const EPS_PX = 1;
 
+const SPEEDS = {
+    inHouse: 60,
+    frightened: 90,
+    eaten: 300,
+} as const;
+
+
 function getRandomDir(): Dir {
     return ALL_DIRS[Math.floor(Math.random() * ALL_DIRS.length)] as Dir;
 }
@@ -20,12 +27,6 @@ function getRandomDir(): Dir {
 function getRandomNeighborTile(currentTile: TileCoord): TileCoord {
     return calcTileCoordFromDir(currentTile, getRandomDir());
 }
-
-const SPEEDS = {
-    inHouse: 20,
-    frightened: 30,
-    eaten: 100,
-} as const;
 
 export abstract class Enemy extends Entity {
     protected readonly abstract scatterCoord: TileCoord;

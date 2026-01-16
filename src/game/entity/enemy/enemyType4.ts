@@ -10,7 +10,7 @@ export class EnemyType4 extends Enemy {
     protected _color: string = COLORS.ENEMY_4;
 
     constructor(staticMap: StaticMap, startTile: TileCoord) {
-        super(staticMap, startTile, 30);
+        super(staticMap, startTile, 20);
     }
 
     protected calcChaseTarget(world: World): TileCoord {

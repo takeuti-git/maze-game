@@ -10,7 +10,7 @@ export abstract class Entity {
     public abstract get color(): string;
     public abstract update(delta: number, world?: World): void;
 
-    protected speed: number = 45;
+    protected speed: number = 120;
     protected readonly defaultSpeed = this.speed;
 
     protected pixelPos: PixelCoord;
