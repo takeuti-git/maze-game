@@ -58,6 +58,10 @@ export abstract class Enemy extends Entity {
         return this._color;
     }
 
+    // ===============
+    // | Public APIs |
+    // ===============
+
     /**
      * 1. 状態に応じて移動速度を変更する
      * 2. 状態に応じて内部情報を変更する
@@ -108,17 +112,19 @@ export abstract class Enemy extends Entity {
 
     public setBehaviorState(state: BehaviorState) {
         this.behaviorState = state;
+    }
 
+    public turnAround() {
         // Scatter <-> Chase の切り替わり時には進行方向を必ず逆にする
-        if (state === BehaviorState.Scatter || state === BehaviorState.Chase) {
+        if (this.behaviorState === BehaviorState.Scatter || this.behaviorState === BehaviorState.Chase) {
             this.direction = OPPOSITE_DIR[this.direction];
             this.lastDecisionTile = { ...this.tilePos };
         }
     }
 
-    // ===========================
-    // Private methods
-    // ===========================
+    // ===================
+    // | Private methods |
+    // ===================
 
     private updateInHouse(): void {
         if (this.elapsedInHouse >= this.releaseDelay) {
@@ -205,9 +211,6 @@ export abstract class Enemy extends Entity {
 
                 case BehaviorState.Eaten:
                     return this.houseExit;
-
-                default:
-                    return this.tilePos;
             }
         })();
     }
@@ -217,13 +220,13 @@ export abstract class Enemy extends Entity {
             this.behaviorState === BehaviorState.Eaten &&
             isSameTile(this.tilePos, this.houseExit)
         ) {
-            this.physicalState = PhysicalState.Active;
             this.setBehaviorState(resumeMode);
         }
     }
 
-    // ====================
-    // ====================
+    // ================================
+    // | Dir Helper (For ActiveState) |
+    // ================================
 
     private getDirCandidates(currentTile: TileCoord): Dir[] {
         // 壁に当たらず進行方向と逆以外のDIR配列を返す

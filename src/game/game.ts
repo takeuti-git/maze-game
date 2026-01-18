@@ -115,7 +115,10 @@ export class Game {
                 this.tickCount = this.STATE_RANGE[this.stateIndex]!;
 
                 const mode = this.getCurrentState();
-                this.enemies.forEach(e => e.setBehaviorState(mode));
+                this.enemies.forEach(e => {
+                    e.setBehaviorState(mode);
+                    e.turnAround();
+                });
             }
         }
 
@@ -134,8 +137,10 @@ export class Game {
             case "PLAYER_POWER_UP_END":
                 const mode = this.getCurrentState();
                 this.enemies.forEach(e => {
-                    // 帰還状態では状態を上書きしない
-                    if (e.isBehaviorState(BehaviorState.Eaten)) return;
+                    if (e.isBehaviorState(BehaviorState.Eaten)) {
+                        // 帰還状態では状態を上書きしない
+                        return;
+                    }
                     e.setBehaviorState(mode);
                 });
                 break;
