@@ -8,6 +8,8 @@ import { calcTileCoordFromDir, isSameTile, tileCoordToCenterPixelCoord } from ".
 import { BehaviorState, PhysicalState } from "../../../constants/enemyState.js";
 import { COLORS } from "../../../constants/colors.js";
 
+type NonEmptyArray<T> = [T, ...T[]];
+
 const COLLISION_RANGE_PX = 10;
 const HOUSE_VERTICAL_MIN_PX = 280;
 const HOUSE_VERTICAL_MAX_PX = 330;
@@ -34,7 +36,7 @@ export abstract class Enemy extends Entity {
     protected abstract _target: TileCoord;
     protected abstract calcChaseTarget(world: World): TileCoord;
 
-    private physicalState: PhysicalState = PhysicalState.InHouse;
+    private physicalState: PhysicalState = PhysicalState.Active;
     private behaviorState: BehaviorState = BehaviorState.Scatter;
 
     private releaseDelay: number;
@@ -114,11 +116,19 @@ export abstract class Enemy extends Entity {
         this.behaviorState = state;
     }
 
-    public turnAround() {
+    public toggleScatterChase() {
+        switch (this.behaviorState) {
+            case BehaviorState.Scatter:
+                this.behaviorState = BehaviorState.Chase;
+                break;
+            default:
+                this.behaviorState = BehaviorState.Scatter;
+                break;
+        }
         // Scatter <-> Chase の切り替わり時には進行方向を必ず逆にする
-        if (this.behaviorState === BehaviorState.Scatter || this.behaviorState === BehaviorState.Chase) {
-            this.direction = OPPOSITE_DIR[this.direction];
-            this.lastDecisionTile = { ...this.tilePos };
+        const oppositeDir = OPPOSITE_DIR[this.direction];
+        if (this.canMoveToDir(this.tilePos, oppositeDir)) {
+            this.direction = oppositeDir;
         }
     }
 
@@ -160,7 +170,8 @@ export abstract class Enemy extends Entity {
         if (!this.isOnTileCenter()) return;
         if (this.lastDecisionTile && isSameTile(this.tilePos, this.lastDecisionTile)) return;
 
-        this.direction = this.chooseBestDir(this.tilePos);
+        const dirCandidates = this.getDirCandidates(this.tilePos);
+        this.direction = this.chooseBestDir(dirCandidates);
         this.lastDecisionTile = { ...this.tilePos };
     }
 
@@ -189,7 +200,7 @@ export abstract class Enemy extends Entity {
     private updateTarget(world: World): void {
         if (!this.isOnTileCenter()) return;
 
-        this._target = ((): TileCoord => {
+        this._target = (() => {
             // 物理状態が優先
             if (
                 this.physicalState === PhysicalState.InHouse ||
@@ -228,26 +239,24 @@ export abstract class Enemy extends Entity {
     // | Dir Helper (For ActiveState) |
     // ================================
 
-    private getDirCandidates(currentTile: TileCoord): Dir[] {
+    private getDirCandidates(currentTile: TileCoord): NonEmptyArray<Dir> {
         // 壁に当たらず進行方向と逆以外のDIR配列を返す
         const filtered = ALL_DIRS.filter(dir => {
             if (dir === OPPOSITE_DIR[this.direction]) return false;
             return this.canMoveToDir(currentTile, dir);
         });
 
-        return filtered.length > 0
-            ? filtered
-            : [OPPOSITE_DIR[this.direction]] // 候補がない(行き止まり)なら逆走を許す
+        return filtered.length >= 1
+            ? filtered as NonEmptyArray<Dir>
+            : [OPPOSITE_DIR[this.direction]]; // 候補がない(行き止まり)なら逆走を許す
     }
 
-    private chooseBestDir(currentTile: TileCoord): Dir {
-        const candidates = this.getDirCandidates(currentTile);
-
-        let bestDir = candidates[0] as Dir;
+    private chooseBestDir(candidates: NonEmptyArray<Dir>): Dir {
+        let bestDir = candidates[0];
         let minDist = Infinity;
 
         for (const dir of candidates) {
-            const next = calcTileCoordFromDir(currentTile, dir);
+            const next = calcTileCoordFromDir(this.tilePos, dir);
             const dx = next.tx - this.target.tx;
             const dy = next.ty - this.target.ty;
             const dist = dx * dx + dy * dy;

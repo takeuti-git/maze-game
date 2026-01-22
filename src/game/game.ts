@@ -114,10 +114,8 @@ export class Game {
                 this.stateIndex++;
                 this.tickCount = this.STATE_RANGE[this.stateIndex]!;
 
-                const mode = this.getCurrentState();
                 this.enemies.forEach(e => {
-                    e.setBehaviorState(mode);
-                    e.turnAround();
+                    e.toggleScatterChase();
                 });
             }
         }
